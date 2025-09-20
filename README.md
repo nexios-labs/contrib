@@ -5,62 +5,94 @@
   </a>
 </p>
 
-<h1 align="center">Nexips Project Template</h1>
+<h1 align="center">Nexios Contrib</h1>
 
-
-# Nexips Project Template
-
-A simple project template for building packages under the [@nexios-labs](https://github.com/nexios-labs) organization.  
-This template is powered by **[Nexios](https://nexios-docs.netlify.app/)** and uses **[uv](https://github.com/astral-sh/uv)** for dependency management.  
-Documentation is built with **[VitePress](https://vitepress.dev/)**.  
+Community-driven extensions and add‑ons for the **[Nexios](https://nexios-docs.netlify.app/)** ASGI framework. This repository hosts independently versioned packages that you can install a‑la‑carte or together via the meta package.
 
 ---
 
-## 🚀 Getting Started
+## Packages
 
-1. **Use this template** on GitHub to create your new project.
-2. Clone your new repository.
-3. Install dependencies with:
+- ETag Middleware: `nexios_contrib.etag`
+  - README: [nexios_contrib/etag/README.md](./nexios_contrib/etag/README.md)
+  - Provides automatic `ETag` generation and conditional request handling (`If-None-Match` → `304`).
+
+More contribs will be added over time. Contributions welcome!
+
+---
+
+## Installation
+
+Install the meta package (brings in all contribs):
 
 ```bash
-   uv sync
-````
+pip install nexios_contrib
+```
 
-4. Update `pyproject.toml` with:
-
-   * Project name
-   * Description
-   * Author / Maintainer details
-   * Dependencies
-
-5. Start building with Nexios!
+Or install directly from a specific package as they become available on PyPI.
 
 ---
 
-## 📂 Project Structure
+## Quick Example (ETag)
+
+```python
+from nexios import NexiosApp
+import nexios_contrib.etag as etag
+
+app = NexiosApp()
+app.add_middleware(etag.ETag())
+
+@app.get("/")
+async def home(request, response):
+    return {"message": "Hello with ETag!"}
+```
+
+See the full guide in the [ETag README](./nexios_contrib/etag/README.md).
+
+---
+
+## Development
+
+This repo uses **[uv](https://github.com/astral-sh/uv)** workspaces and **hatchling** for builds.
+
+Common tasks:
+
+```bash
+# Sync workspace deps
+uv sync
+
+# Run tests
+pytest -q
+
+# Build wheel/sdist
+python -m build
+```
+
+---
+
+## Project Structure
 
 ```
-project-name/
-├── src/              # Your source code
-│   └── project/     
-├── tests/            # Test files
-├── docs/             # Documentation (VitePress)
-├── pyproject.toml    # Project metadata & dependencies
+./
+├── nexios_contrib/
+│   └── etag/                 # ETag middleware package
+├── tests/
+├── docs/
+├── pyproject.toml
 └── README.md
 ```
 
-If you don’t want to use the `src` folder, feel free to rename it and update imports.
+Each contrib package is versioned and released independently.
 
 ---
 
-## 📦 Releasing
+## Releasing
 
-1. Update the version in `pyproject.toml` (follow [SemVer](https://semver.org/)).
-2. Commit changes and push to `main`.
-3. Create a GitHub release with the version tag (e.g. `v1.2.3`).
-4. Publish!
+1. Update the package’s version in its `pyproject.toml` (SemVer).
+2. Commit and push to `main`.
+3. Create a release/tag.
+4. Publish to PyPI.
 
 ---
 
 Built with ❤️ by [@nexios-labs](https://github.com/nexios-labs)
-
