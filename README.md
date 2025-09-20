@@ -1,4 +1,3 @@
-
 <p align="center">
   <a href="https://github.com/nexios-labs">
     <img alt="Nexios Logo" height="350" src="https://nexios-docs.netlify.app/logo.png"> 
@@ -13,9 +12,21 @@ Community-driven extensions and add‑ons for the **[Nexios](https://nexios-docs
 
 ## Packages
 
-- ETag Middleware: `nexios_contrib.etag`
+- **URL Normalization Middleware**: `nexios_contrib.slashes`
+  - README: [nexios_contrib/slashes/README.md](./nexios_contrib/slashes/README.md)
+  - Handles trailing slashes, double slashes, and URL normalization for consistent, clean URLs.
+
+- **Trusted Host Middleware**: `nexios_contrib.trusted`
+  - README: [nexios_contrib/trusted/README.md](./nexios_contrib/trusted/README.md)
+  - Validates the `Host` header against allowed hosts to prevent Host header attacks and ensure requests come from trusted domains.
+
+- **ETag Middleware**: `nexios_contrib.etag`
   - README: [nexios_contrib/etag/README.md](./nexios_contrib/etag/README.md)
   - Provides automatic `ETag` generation and conditional request handling (`If-None-Match` → `304`).
+
+- **JSON-RPC**: `nexios_contrib.jrpc`
+  - README: [nexios_contrib/jrpc/README.md](./nexios_contrib/jrpc/README.md)
+  - JSON-RPC 2.0 server and client implementation for building RPC APIs.
 
 More contribs will be added over time. Contributions welcome!
 
