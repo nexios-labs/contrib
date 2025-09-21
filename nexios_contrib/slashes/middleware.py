@@ -12,8 +12,7 @@ from urllib.parse import urlparse, urlunparse
 
 from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
-from nexios.http.exceptions import HTTPException
-from nexios.http.response import RedirectResponse
+from .helpers import is_double_slash
 
 
 class SlashAction(Enum):
@@ -44,18 +43,15 @@ class SlashesMiddleware(BaseMiddleware):
         self,
         *,
         slash_action: SlashAction = SlashAction.REDIRECT_REMOVE,
-        auto_remove_double_slashes: bool = True,
         redirect_status_code: int = 301,
         **_: Any,
     ) -> None:
         self.slash_action = slash_action
-        self.auto_remove_double_slashes = auto_remove_double_slashes
         self.redirect_status_code = redirect_status_code
 
     def _normalize_path(self, path: str) -> str:
         """Normalize a path by removing double slashes."""
-        if not self.auto_remove_double_slashes:
-            return path
+        
 
         # Remove double slashes
         while "//" in path:
@@ -139,7 +135,7 @@ class SlashesMiddleware(BaseMiddleware):
                 if self._has_trailing_slash(normalized_path):
                     redirect_path = self._remove_trailing_slash(normalized_path)
                     should_redirect = True
-
+            
             if should_redirect:
                 # Build the redirect URL
                 redirect_url = urlunparse((
@@ -152,9 +148,7 @@ class SlashesMiddleware(BaseMiddleware):
                 ))
 
                 # Return redirect response
-                raise HTTPException(
-                    status_code=self.redirect_status_code,
-                    headers={"Location": redirect_url}
-                )
+                return response.redirect(redirect_url, status_code=self.redirect_status_code)
+            
 
         await call_next()

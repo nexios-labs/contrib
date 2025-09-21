@@ -212,3 +212,6 @@ def normalize_url(url: str, preserve_case: bool = True) -> str:
         parsed.query,
         parsed.fragment
     ))
+
+def is_double_slash(path:str):
+    return "//" in path

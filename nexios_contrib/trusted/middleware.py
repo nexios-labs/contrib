@@ -6,11 +6,10 @@ trusted hosts/domains. This is a security feature to prevent Host header attacks
 """
 from __future__ import annotations
 
-from typing import Any, List, Optional, Set, Union
+from typing import Any, List, Optional, Set
 
 from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
-from nexios.http.exceptions import HTTPException
 
 
 class TrustedHostMiddleware(BaseMiddleware):
@@ -89,14 +88,13 @@ class TrustedHostMiddleware(BaseMiddleware):
         call_next: Any,
     ) -> None:
         host = self._extract_host_from_request(request)
-
         if not host:
             # No host header - reject
-            raise HTTPException(status_code=400, detail="Host header is required")
+            return response.json({"error": "Invalid host header"}, status_code=400)
 
         # Check if host is allowed
         if not self._is_host_allowed(host):
-            raise HTTPException(status_code=400, detail=f"Host '{host}' is not allowed")
+            return response.json({"error": f"Host '{host}' is not allowed"}, status_code=400)
 
         # Handle www redirect if enabled
         if self.www_redirect and host.startswith("www."):
