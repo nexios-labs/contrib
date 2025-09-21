@@ -18,14 +18,13 @@ except ImportError:
     ASYNCPG_AVAILABLE = False
 
 from pydantic import BaseModel
-from nexios.exceptions import NexiosException
 
 T = TypeVar('T')
 
 logger = logging.getLogger(__name__)
 
 
-class DatabaseError(NexiosException):
+class DatabaseError(Exception):
     """Database-related errors."""
     pass
 
