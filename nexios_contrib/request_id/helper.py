@@ -52,7 +52,7 @@ def set_request_id_header(
         request_id: The request ID to set.
         header_name: The header name to use (default: "X-Request-ID").
     """
-    response.headers[header_name] = request_id
+    response.set_header(header_name, request_id,overide=True)
 
 
 def get_or_generate_request_id(

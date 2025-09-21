@@ -58,12 +58,12 @@ db_config = DatabaseConfig(
 )
 
 # Initialize database connection
-@app.on_event("startup")
+@app.on_startup
 async def startup():
     db_client = await initialize_database(db_config)
     app.state.db = db_client
 
-@app.on_event("shutdown")
+@app.on_shutdown
 async def shutdown():
     await close_database()
 
