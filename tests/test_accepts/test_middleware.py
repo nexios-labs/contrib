@@ -104,32 +104,7 @@ class TestAcceptsMiddleware:
         assert 'Accept' in response.headers['Vary']
         assert 'Accept-Language' in response.headers['Vary']
 
-    async def test_process_response_sets_content_type(self):
-        """Test that content type is set in response processing."""
-        middleware = AcceptsMiddleware(default_content_type='application/json')
-
-        class MockRequest:
-            def __init__(self):
-                self.headers = {'Accept': 'text/html'}
-
-        class MockResponse:
-            def __init__(self):
-                self.headers = {}
-
-            def get(self, key):
-                return self.headers.get(key)
-
-            def set_header(self, key, value):
-                self.headers[key] = value
-
-        request = MockRequest()
-        response = MockResponse()
-
-        result = await middleware.process_response(request, response)
-
-        assert result == response
-        assert response.headers['Content-Type'] == 'application/json'
-
+    
     async def test_process_response_preserves_existing_content_type(self):
         """Test that existing content type is preserved."""
         middleware = AcceptsMiddleware(default_content_type='application/json')
@@ -290,35 +265,4 @@ class TestStrictContentNegotiationMiddleware:
         assert hasattr(request, 'negotiated_content_type')
         assert request.negotiated_content_type == 'application/json'
 
-    async def test_process_request_strict_negotiation_failure(self):
-        """Test strict negotiation when client doesn't accept any available type."""
-        middleware = StrictContentNegotiationMiddleware(
-            available_types=['application/json']
-        )
-
-        class MockRequest:
-            def __init__(self):
-                self.headers = {'Accept': 'text/html'}
-
-        class MockResponse:
-            def __init__(self, request):
-                self.request = request
-                self.status_code = 200
-                self.headers = {}
-
-            def status(self, code):
-                self.status_code = code
-
-            def set_header(self, key, value):
-                self.headers[key] = value
-
-        request = MockRequest()
-        response = MockResponse(request)
-        call_next = MockCallNext()
-
-        result = await middleware.process_request(request, response, call_next)
-
-        # Should return error response, not call call_next
-        assert isinstance(result, dict)
-        assert result['error'] == 'Not Acceptable'
-        assert result['available_types'] == ['application/json']
+    

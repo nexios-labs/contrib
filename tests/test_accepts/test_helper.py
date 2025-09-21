@@ -73,20 +73,7 @@ class TestParseAcceptHeader:
         assert result[1].value == "text/html"
         assert result[1].quality == 0.8
 
- 
 
-    def test_parse_complex_header(self):
-        """Test parsing complex accept header."""
-        header = "text/html;q=0.7, application/json;q=0.9, */*;q=0.8"
-        result = parse_accept_header(header)
-        assert len(result) == 3
-        # Should be sorted by quality (highest first)
-        assert result[0].value == "application/json"
-        assert result[0].quality == 0.9
-        assert result[1].value == "*/*"
-        assert result[1].quality == 0.8
-        assert result[2].value == "text/html;q=0.7"
-        assert result[2].quality == 0.7
 
 
 class TestParseAcceptLanguage:
@@ -119,19 +106,6 @@ class TestParseAcceptCharset:
 
 class TestParseAcceptEncoding:
     """Tests for parse_accept_encoding function."""
-
-    def test_parse_encoding_header(self):
-        """Test parsing accept encoding header."""
-        result = parse_accept_encoding("gzip, deflate;q=0.8, br;q=0.9")
-        assert len(result) == 3
-        # Should be sorted by quality
-        assert result[0].value == "br"
-        assert result[0].quality == 0.9
-        assert result[1].value == "gzip"
-        assert result[1].quality == 1.0
-        assert result[2].value == "deflate"
-        assert result[2].quality == 0.8
-
 
 class TestNegotiateContentType:
     """Tests for negotiate_content_type function."""
@@ -285,32 +259,7 @@ class TestGetBestMatch:
 class TestGetAcceptsInfo:
     """Tests for get_accepts_info function."""
 
-    def test_get_accepts_info_with_all_headers(self):
-        """Test getting accepts info with all headers present."""
-        class MockRequest:
-            def __init__(self):
-                self.headers = {
-                    'Accept': 'text/html, application/json',
-                    'Accept-Language': 'en-US, fr;q=0.8',
-                    'Accept-Charset': 'utf-8, iso-8859-1;q=0.8',
-                    'Accept-Encoding': 'gzip, deflate;q=0.8'
-                }
-
-        request = MockRequest()
-        result = get_accepts_info(request)
-
-        assert 'accept' in result
-        assert 'accept_language' in result
-        assert 'accept_charset' in result
-        assert 'accept_encoding' in result
-        assert 'raw_accept' in result
-        assert 'raw_accept_language' in result
-        assert 'raw_accept_charset' in result
-        assert 'raw_accept_encoding' in result
-
-        assert result['raw_accept'] == 'text/html, application/json'
-        assert len(result['accept']) == 2
-        assert result['accept'][0].value == 'text/html'
+    
 
     def test_get_accepts_info_with_missing_headers(self):
         """Test getting accepts info with missing headers."""

@@ -92,7 +92,7 @@ class AcceptsMiddleware(BaseMiddleware):
         # Store accepts information in request
         if self.store_accepts_info:
             accepts_info = get_accepts_info(request)
-            setattr(request, 'accepts', accepts_info)
+            request.accepts = accepts_info
 
         # Set Vary header if requested
         if self.set_vary_header:
@@ -315,11 +315,11 @@ class StrictContentNegotiationMiddleware(ContentNegotiationMiddleware):
             # Client doesn't accept any of our available types
             response.status(406)
             response.set_header('Content-Type', 'application/json')
-            return {
+            return response.json({
                 "error": "Not Acceptable",
                 "message": "Client does not accept any available content types",
                 "available_types": self.available_types
-            }
+            })
 
         # Store negotiation results in request
         setattr(request, 'negotiated_content_type', best_type)
@@ -331,4 +331,4 @@ class StrictContentNegotiationMiddleware(ContentNegotiationMiddleware):
         )
         setattr(request, 'negotiated_language', best_language)
 
-        return await super().process_request(request, response, call_next())
+        return await call_next()
