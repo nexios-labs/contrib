@@ -11,5 +11,6 @@ from . import graphql
 from . import request_id
 from . import proxy
 from . import accepts
+from . import postgres
 
-__all__ = ["etag", "jrpc", "slashes", "trusted", "graphql", "request_id", "proxy", "accepts"]
+__all__ = ["etag", "jrpc", "slashes", "trusted", "graphql", "request_id", "proxy", "accepts", "postgres"]
