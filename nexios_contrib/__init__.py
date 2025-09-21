@@ -9,5 +9,7 @@ from . import slashes
 from . import trusted
 from . import graphql
 from . import request_id
+from . import proxy
+from . import accepts
 
-__all__ = ["etag", "jrpc", "slashes", "trusted", "graphql", "request_id"]
+__all__ = ["etag", "jrpc", "slashes", "trusted", "graphql", "request_id", "proxy", "accepts"]
