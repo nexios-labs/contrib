@@ -105,7 +105,7 @@ def store_request_id_in_request(
         request_id: The request ID to store.
         attribute_name: The attribute name to use (default: "request_id").
     """
-    setattr(request, attribute_name, request_id)
+    request.state.update({attribute_name: request_id})
 
 
 def get_request_id_from_request(
@@ -122,4 +122,4 @@ def get_request_id_from_request(
     Returns:
         Optional[str]: The stored request ID if found, None otherwise.
     """
-    return getattr(request, attribute_name, None)
+    return getattr(request.state,attribute_name)

@@ -211,15 +211,15 @@ def format_timeout_duration(seconds: float) -> str:
         Human-readable duration string.
     """
     if seconds < 1:
-        return f"{seconds*1000".1f"}ms"
+        return f"{seconds*1000}ms"
     elif seconds < 60:
-        return f"{seconds".1f"}s"
+        return f"{seconds}s"
     elif seconds < 3600:
         minutes = int(seconds // 60)
         remaining_seconds = seconds % 60
-        return f"{minutes}m {remaining_seconds".1f"}s"
+        return f"{minutes}m {remaining_seconds}s"
     else:
         hours = int(seconds // 3600)
         remaining_minutes = int((seconds % 3600) // 60)
         remaining_seconds = seconds % 60
-        return f"{hours}h {remaining_minutes}m {remaining_seconds".1f"}s"
+        return f"{hours}h {remaining_minutes}m {remaining_seconds}s"

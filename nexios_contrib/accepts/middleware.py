@@ -71,6 +71,7 @@ class AcceptsMiddleware(BaseMiddleware):
         self.default_charset = default_charset
         self.set_vary_header = set_vary_header
         self.store_accepts_info = store_accepts_info
+        self.vary = []
 
     async def process_request(
         self,
@@ -96,19 +97,17 @@ class AcceptsMiddleware(BaseMiddleware):
 
         # Set Vary header if requested
         if self.set_vary_header:
-            vary_fields = []
             if request.headers.get('Accept'):
-                vary_fields.append('Accept')
+                self.vary.append('Accept')
             if request.headers.get('Accept-Language'):
-                vary_fields.append('Accept-Language')
+                self.vary.append('Accept-Language')
             if request.headers.get('Accept-Charset'):
-                vary_fields.append('Accept-Charset')
+                self.vary.append('Accept-Charset')
             if request.headers.get('Accept-Encoding'):
-                vary_fields.append('Accept-Encoding')
+                self.vary.append('Accept-Encoding')
 
-            if vary_fields:
-                existing_vary = response.headers.get('Vary')
-                response.set_header('Vary', create_vary_header(existing_vary, vary_fields))
+            
+                
 
         return await call_next()
 
@@ -127,6 +126,9 @@ class AcceptsMiddleware(BaseMiddleware):
         Returns:
             Any: The response object.
         """
+        if self.vary:
+            existing_vary = response.headers.get('Vary')
+            response.set_header('Vary', create_vary_header(existing_vary, self.vary),overide=True)
         # Set default content type if not already set and Content-Type header is missing
         if not response.headers.get('Content-Type') and self.default_content_type:
             # Try to negotiate content type based on Accept header
@@ -137,9 +139,9 @@ class AcceptsMiddleware(BaseMiddleware):
                     [self.default_content_type]
                 )
                 if negotiated_type:
-                    response.set_header('Content-Type', negotiated_type)
+                    response.set_header('Content-Type', negotiated_type,overide=True)
             else:
-                response.set_header('Content-Type', self.default_content_type)
+                response.set_header('Content-Type', self.default_content_type,overide=True)
 
         return response
 

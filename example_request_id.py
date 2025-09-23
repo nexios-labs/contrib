@@ -3,7 +3,7 @@ Example demonstrating the request_id contrib module usage.
 """
 from nexios import NexiosApp
 from nexios.http import Request, Response
-from nexios_contrib.request_id import RequestId, generate_request_id, get_request_id_from_request
+from nexios_contrib.request_id import RequestId, generate_request_id, get_request_id_from_request,dependency as di
 
 # Create Nexios app
 app = NexiosApp()
@@ -12,9 +12,9 @@ app = NexiosApp()
 app.add_middleware(RequestId())
 
 @app.get("/")
-async def home(request: Request, response: Response):
+async def home(request: Request, response: Response,request_id = di.RequestIdDepend()):
     """Home endpoint that shows request ID usage."""
-    request_id = getattr(request, 'request_id', 'No request ID')
+    # request_id = getattr(request, 'request_id', 'No request ID')
 
     return {
         "message": "Hello from Nexios with Request ID!",

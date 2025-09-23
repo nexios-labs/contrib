@@ -10,6 +10,6 @@ from . import trusted
 from . import request_id
 from . import proxy
 from . import accepts
-from . import postgres
+from . import timeout
 
-__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "postgres"]
+__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "postgres", "timeout"]

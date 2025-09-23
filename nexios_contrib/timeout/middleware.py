@@ -138,7 +138,7 @@ class TimeoutMiddleware(BaseMiddleware):
                 return self._create_timeout_response(request, e)
             else:
                 # Return a basic timeout response
-                return Response(
+                return response.json(
                     status_code=408,
                     content="Request Timeout"
                 )
@@ -169,11 +169,12 @@ class TimeoutMiddleware(BaseMiddleware):
         # Add request duration to response headers if tracking is enabled
         if self.track_duration and hasattr(request, 'start_time'):
             duration = get_request_duration(request)
-            response.headers['X-Request-Duration'] = str(duration)
+            response.set_header('X-Request-Duration',str(duration))
 
             # Add timeout information if available
             if hasattr(request, 'timeout'):
-                response.headers['X-Request-Timeout'] = str(request.timeout)
+                response.set_header('X-Request-Timeout',str(request.timeout))
+
 
         return response
 
@@ -255,7 +256,8 @@ class TimeoutMiddleware(BaseMiddleware):
         # Add timing information
         if hasattr(request, 'start_time'):
             duration = get_request_duration(request)
-            response.headers['X-Actual-Duration'] = str(duration)
+            response.set_header('X-Actual-Duration',str(duration))
+
 
         return response
 
