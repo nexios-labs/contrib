@@ -90,10 +90,18 @@ class AcceptsMiddleware(BaseMiddleware):
         Returns:
             Any: The result from the next middleware or handler.
         """
-        # Store accepts information in request
+         # Store parsed accepts information in request state if enabled
         if self.store_accepts_info:
             accepts_info = get_accepts_info(request)
-            request.accepts = accepts_info
+            request.state.accepts = accepts_info
+            
+            # Store individual components for easier access
+            request.state.accepts_parsed = {
+                'accept': parse_accept_header(request.headers.get('Accept', '')),
+                'accept_language': parse_accept_language(request.headers.get('Accept-Language', '')),
+                'accept_charset': parse_accept_charset(request.headers.get('Accept-Charset', '')),
+                'accept_encoding': parse_accept_encoding(request.headers.get('Accept-Encoding', '')),
+            }
 
         # Set Vary header if requested
         if self.set_vary_header:
@@ -247,9 +255,9 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         Returns:
             List[str]: List of accepted content types.
         """
-        accepts_info = getattr(request, 'accepts', {})
-        accept_items = accepts_info.get('accept', [])
-
+        accepts_parsed = getattr(request.state, 'accepts_parsed', {})
+        accept_items = accepts_parsed.get('accept', [])
+        
         return [item.value for item in accept_items if item.quality > 0]
 
     def get_accepted_languages(self, request: Request) -> List[str]:
@@ -262,8 +270,8 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         Returns:
             List[str]: List of accepted languages.
         """
-        accepts_info = getattr(request, 'accepts', {})
-        accept_items = accepts_info.get('accept_language', [])
+        accepts_parsed = getattr(request.state, 'accepts_parsed', {})
+        accept_items = accepts_parsed.get('accept_language', [])
 
         return [item.value for item in accept_items if item.quality > 0]
 
