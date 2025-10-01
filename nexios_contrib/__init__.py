@@ -13,4 +13,4 @@ from . import accepts
 from . import timeout
 from . import redis
 
-__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "timeout", "redis"]
+__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "timeout", "redis", "dependencies"]
