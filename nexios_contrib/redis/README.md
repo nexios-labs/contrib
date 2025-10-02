@@ -1,8 +1,9 @@
-# Nexios Redis
-
-[![PyPI version](https://badge.fury.io/py/nexios-contrib-redis.svg)](https://badge.fury.io/py/nexios-contrib-redis)
-[![Python Version](https://img.shields.io/pypi/pyversions/nexios-contrib-redis.svg)](https://pypi.org/project/nexios-contrib-redis/)
-[![License](https://img.shields.io/pypi/l/nexios-contrib-redis.svg)](https://github.com/nexios-labs/nexios/blob/main/LICENSE)
+<p align="center">
+  <a href="https://github.com/nexios-labs">
+    <img alt="Nexios Logo" height="220" src="https://nexios-docs.netlify.app/logo.png">
+  </a>
+</p>
+<h1 align="center">Redis for Nexios</h1>
 
 Redis integration for [Nexios](https://nexios-docs.netlify.app/) web framework, providing seamless caching, session storage, and data management capabilities with comprehensive dependency injection support.
 
