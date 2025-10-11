@@ -8,7 +8,7 @@ accessing parsed accepts information from requests.
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from nexios.http import Request
 
@@ -917,7 +917,7 @@ def get_best_match(accept_header: str, options: List[str]) -> Optional[str]:
     return options[0] if options else None
 
 
-def get_accepts_info(request: Request) -> Dict[str, any]:
+def get_accepts_info(request: Request) -> Dict[str, Any]:
     """
     Extract and parse all Accept-related headers from a request.
 
