@@ -122,4 +122,4 @@ def get_request_id_from_request(
     Returns:
         Optional[str]: The stored request ID if found, None otherwise.
     """
-    return getattr(request.state,attribute_name)
+    return getattr(request.state,attribute_name,None)

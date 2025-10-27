@@ -12,6 +12,7 @@ from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
 
 from .helper import (
+    generate_request_id,
     get_or_generate_request_id,
     get_request_id_from_header,
     set_request_id_header,
@@ -85,12 +86,13 @@ class RequestIdMiddleware(BaseMiddleware):
         """
         # Get or generate request ID
         if self.force_generate:
-            request_id = get_or_generate_request_id(request, self.header_name)
+            request_id = generate_request_id()
+
         else:
             request_id = get_request_id_from_header(request, self.header_name)
             if not request_id:
                 request_id = get_or_generate_request_id(request, self.header_name)
-
+        self.request_id = request_id
         # Store request ID in request object if enabled
         if self.store_in_request:
             store_request_id_in_request(request, request_id, self.request_attribute_name)
@@ -117,7 +119,7 @@ class RequestIdMiddleware(BaseMiddleware):
             Any: The response object.
         """
         # Get stored request ID from request object
-        request_id = get_request_id_from_request(request, self.request_attribute_name)
+        request_id = self.request_id
 
         # If request ID is not in response headers but we have one stored, add it
         if request_id and self.include_in_response:
