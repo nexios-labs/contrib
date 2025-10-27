@@ -64,14 +64,14 @@ def set_response_etag(response: Response, etag: str, override: bool = True) -> N
     response.set_header("etag", tag, overide=override)
 
 
-def compute_and_set_etag(response: Response, weak: bool = True, override: bool = False) -> str:
+def compute_and_set_etag(response: Response, body :bytes = b'' ,weak: bool = True, override: bool = False) -> str:
     """
     Compute an ETag for the current response body and set it if not present (or if override=True).
 
     Returns the ETag value used.
     """
     # Response.body returns bytes
-    body = response.body or b""
+    
     tag = generate_etag_from_bytes(body, weak=weak)
     set_response_etag(response, tag, override=override)
     return tag

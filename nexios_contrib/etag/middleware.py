@@ -39,32 +39,30 @@ class ETagMiddleware(BaseMiddleware):
         self.methods = tuple(m.upper() for m in methods)
         self.override = override
 
-    async def process_request(
+   
+
+    async def __call__(
         self,
         request: Request,
         response: Response,
         call_next: Any,
     ) -> None:
-        # Defer all logic to process_response after handler executes.
-        await call_next()
-
-    async def process_response(
-        self,
-        request: Request,
-        response: Response,
-    ) -> None:
         # Apply only to configured methods
+        stream = await call_next()
         if request.method.upper() not in self.methods:
             return None
 
         # Compute/set ETag if missing (or override when requested)
         has_existing = bool(response.headers.get("etag"))
+        print("has_existing",has_existing)
         if not has_existing or self.override:
-            compute_and_set_etag(response, weak=self.weak, override=True)
+            body = b""
+            async for chunk in stream.content_iterator:
+                body += chunk
+            compute_and_set_etag(response, body, weak=self.weak, override=True)
 
         # Handle If-None-Match freshness for conditional requests
         if is_fresh(request, response, weak_compare=True):
-            
             # Per RFC 9110, a 304 response must not include a message body
             # Ensure body is empty; BaseResponse avoids content-length for 304
             response.make_response(BaseResponse(
