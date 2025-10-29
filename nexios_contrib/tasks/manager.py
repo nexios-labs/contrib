@@ -9,12 +9,12 @@ from __future__ import annotations
 import asyncio
 import logging
 from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, Union
-from uuid import uuid4
 
 from nexios import NexiosApp
 
 from .config import TaskConfig, TaskStatus
 from .models import Task, TaskResult, TaskError
+import time
 
 T = TypeVar('T')
 TaskCallback = Callable[..., Awaitable[Any]]
@@ -134,6 +134,14 @@ class TaskManager:
         except asyncio.CancelledError:
             # Task was cancelled
             self.logger.debug("Task %s was cancelled", task.id)
+            task._status = TaskStatus.CANCELLED
+            task._result = TaskResult(
+                task_id=task.id,
+                result=None,
+                status=TaskStatus.CANCELLED,
+                error=asyncio.CancelledError("Task was cancelled"),
+                completed_at=time.time()
+            )
             if task.id in self.tasks:
                 del self.tasks[task.id]
             raise
@@ -257,7 +265,7 @@ class TaskManager:
     
     def add_callback(
         self, 
-        task_id: str, 
+        task: Union[str, Task], 
         callback: TaskResultCallback
     ) -> None:
         """Add a callback to be called when a task completes.
@@ -269,13 +277,15 @@ class TaskManager:
         Raises:
             ValueError: If the task ID is not found.
         """
-        if task_id not in self.tasks:
-            raise ValueError(f"Task {task_id} not found")
+        if isinstance(task, Task):
+            task = task.id
+        if task not in self.tasks:
+            raise ValueError(f"Task {task} not found")
             
-        if task_id not in self._task_callbacks:
-            self._task_callbacks[task_id] = []
+        if task not in self._task_callbacks:
+            self._task_callbacks[task] = []
             
-        self._task_callbacks[task_id].append(callback)
+        self._task_callbacks[task].append(callback)
     
     def remove_callback(
         self, 
