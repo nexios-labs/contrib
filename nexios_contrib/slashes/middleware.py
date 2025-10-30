@@ -101,25 +101,25 @@ class SlashesMiddleware(BaseMiddleware):
 
         # Normalize path (remove double slashes)
         normalized_path = self._normalize_path(original_path)
-
         # Handle trailing slashes
         if self.slash_action == SlashAction.IGNORE:
             # Just normalize double slashes
             if normalized_path != original_path:
                 # Update the request path
-                request.url = request.url._replace(path=normalized_path)
+                request.scope["path"] = normalized_path
+
 
         elif self.slash_action == SlashAction.ADD:
             # Add trailing slash
             if not self._has_trailing_slash(normalized_path):
                 new_path = self._add_trailing_slash(normalized_path)
-                request.url = request.url._replace(path=new_path)
+                request.scope["path"] = new_path
 
         elif self.slash_action == SlashAction.REMOVE:
             # Remove trailing slash
             if self._has_trailing_slash(normalized_path):
                 new_path = self._remove_trailing_slash(normalized_path)
-                request.url = request.url._replace(path=new_path)
+                request.scope["path"] = new_path
 
         elif self.slash_action in [SlashAction.REDIRECT_ADD, SlashAction.REDIRECT_REMOVE]:
             # Handle redirects
