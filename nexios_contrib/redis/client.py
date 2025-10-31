@@ -6,7 +6,7 @@ from __future__ import annotations
 import asyncio
 import json
 from typing import Any, Dict, List, Optional, Union
-
+import redis
 from nexios_contrib.redis.config import RedisConfig
 
 
@@ -233,13 +233,15 @@ class RedisClient:
             await self.connect()
 
         try:
-            import redis.asyncio as redis
+            print("self._redis",self._redis)
+
             if hasattr(redis.Redis, "json"):
                 await self._redis.json().set(key, path, value, nx=nx, xx=xx)
                 return True
             else:
                 # Fallback to JSON serialization and regular set
                 json_value = json.dumps(value)
+                print("self._redis",self._redis)
                 return await self._redis.set(key, json_value, nx=nx, xx=xx)
         except Exception as e:
             raise RedisOperationError(f"Failed to set JSON for key '{key}': {e}")
