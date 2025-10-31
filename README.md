@@ -8,6 +8,8 @@
 
 Community-driven extensions and add‑ons for the **[Nexios](https://nexios-docs.netlify.app/)** ASGI framework. This repository hosts independently versioned packages that you can install a‑la‑carte or together via the meta package.
 
+📖 **[View Documentation](https://nexios-docs.netlify.app/community/)** | 🚀 **[Get Started](https://nexios-docs.netlify.app/community/)**
+
 ---
 
 ## Packages
