@@ -1,14 +1,14 @@
 <p align="center">
   <a href="https://github.com/nexios-labs">
-    <img alt="Nexios Logo" height="350" src="https://nexios-docs.netlify.app/logo.png"> 
+    <img alt="Nexios Logo" height="350" src="https://nexios-labs.github.io/nexios/logo.png"> 
   </a>
 </p>
 
 <h1 align="center">Nexios Contrib</h1>
 
-Community-driven extensions and add‑ons for the **[Nexios](https://nexios-docs.netlify.app/)** ASGI framework. This repository hosts independently versioned packages that you can install a‑la‑carte or together via the meta package.
+Community-driven extensions and add‑ons for the **[Nexios](https://nexios-labs.github.io/nexios/)** ASGI framework. This repository hosts independently versioned packages that you can install a‑la‑carte or together via the meta package.
 
-📖 **[View Documentation](https://nexios-docs.netlify.app/community/)** | 🚀 **[Get Started](https://nexios-docs.netlify.app/community/)**
+📖 **[View Documentation](https://nexios-labs.github.io/nexios/community/)** | 🚀 **[Get Started](https://nexios-labs.github.io/nexios/community/)**
 
 ---
 

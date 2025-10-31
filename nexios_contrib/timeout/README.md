@@ -1,11 +1,11 @@
 <p align="center">
   <a href="https://github.com/nexios-labs">
-    <img alt="Nexios Logo" height="220" src="https://nexios-docs.netlify.app/logo.png">
+    <img alt="Nexios Logo" height="220" src="https://nexios-labs.github.io/nexios/logo.png">
   </a>
 </p>
 <h1 align="center">Timeout for Nexios</h1>
 
-Timeout middleware and utilities for [Nexios](https://nexios-docs.netlify.app/) web framework, providing flexible request timeout handling, duration tracking, and timeout-based control flow.
+Timeout middleware and utilities for [Nexios](https://nexios-labs.github.io/nexios/) web framework, providing flexible request timeout handling, duration tracking, and timeout-based control flow.
 
 ## Features
 

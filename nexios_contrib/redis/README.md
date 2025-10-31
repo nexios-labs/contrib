@@ -1,11 +1,11 @@
 <p align="center">
   <a href="https://github.com/nexios-labs">
-    <img alt="Nexios Logo" height="220" src="https://nexios-docs.netlify.app/logo.png">
+    <img alt="Nexios Logo" height="220" src="https://nexios-labs.github.io/nexios/logo.png">
   </a>
 </p>
 <h1 align="center">Redis for Nexios</h1>
 
-Redis integration for [Nexios](https://nexios-docs.netlify.app/) web framework, providing seamless caching, session storage, and data management capabilities with comprehensive dependency injection support.
+Redis integration for [Nexios](https://nexios-labs.github.io/nexios/) web framework, providing seamless caching, session storage, and data management capabilities with comprehensive dependency injection support.
 
 ## Features
 
@@ -627,7 +627,7 @@ This project is licensed under the BSD-3-Clause License - see the [LICENSE](http
 
 ## Support
 
-- 📚 [Documentation](https://nexios-docs.netlify.app/)
+- 📚 [Documentation](https://nexios-labs.github.io/nexios/)
 - 🐛 [Issue Tracker](https://github.com/nexios-labs/nexios/issues)
 - 💬 [Discussions](https://github.com/nexios-labs/nexios/discussions)
 - 🚀 [Nexios Framework](https://github.com/nexios-labs/nexios)

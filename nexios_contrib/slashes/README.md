@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/nexios-labs">
-    <img alt="Nexios Logo" height="220" src="https://nexios-docs.netlify.app/logo.png">
+    <img alt="Nexios Logo" height="220" src="https://nexios-labs.github.io/nexios/logo.png">
   </a>
 </p>
 

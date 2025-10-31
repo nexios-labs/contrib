@@ -12,7 +12,7 @@ authors = [
 license = "BSD-3-Clause"
 homepage = "https://github.com/nexios-labs/nexios"
 repository = "https://github.com/nexios-labs/nexios"
-documentation = "https://nexios-docs.netlify.app/"
+documentation = "https://nexios-labs.github.io/nexios/"
 readme = "README.md"
 keywords = [
     "ASGI",
