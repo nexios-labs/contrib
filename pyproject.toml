@@ -34,8 +34,8 @@ keywords = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "nexios>=2.11.3",
-    "strawberry-graphql>=0.200.0"
+    "nexios==3.0.0b1",
+    
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -44,18 +44,9 @@ packages = ["nexios_contrib"]
 
 [project.optional-dependencies]
 templating = ["jinja2>=3.1.6"]
-graphql = [
-    "strawberry-graphql>=0.200.0",
-    "uvicorn>=0.27.0"
-]  
+redis = ["redis>=4.0.0"]
 
-# Feature groups
-http = [
-    "uvicorn>=0.27.0",
-    "anyio>=4.0.0",
-    "itsdangerous>=2.1.2",
-    "python-multipart>=0.0.6"
-]
+
 
 all = [
     "uvicorn>=0.27.0",
@@ -88,10 +79,10 @@ dev = [
     "isort>=5.13.2",
     "ruff>=0.0.256",
     "black>=23.0.0",
+
 ]
 
-[project.scripts]
-nexios = "nexios.cli:cli"
+
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

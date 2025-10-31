@@ -1,4 +1,4 @@
-name: Run Ox Tests
+name: Run  Tests
 
 on:
   push:
