@@ -43,10 +43,13 @@ def normalize_etag(tag: str) -> str:
     if not _ETAG_TOKEN_RE.match(tag):
         # Try to coerce when unquoted simple tokens are passed
         if not tag.startswith('W/'):
-            tag = f'"{tag.strip("\"")}"'
+            clean = tag.strip('"')
+            tag = f'"{clean}"'
         else:
             core = tag[2:].strip()
-            tag = f'W/"{core.strip("\"")}"'
+            clean_core = core.strip('"')
+            tag = f'W/"{clean_core}"'
+
         if not _ETAG_TOKEN_RE.match(tag):
             raise ValueError(f"Invalid ETag token: {tag}")
     return tag
