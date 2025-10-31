@@ -45,6 +45,6 @@ jobs:
      
 
       - name: Publish to PyPI
-        run: uv publish --token ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
+        run: uv publish --token ${{ secrets.PYPI_TOKEN }}
 
       
