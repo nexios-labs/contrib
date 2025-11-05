@@ -5,14 +5,14 @@ build-backend = "hatchling.build"
 [project]
 name = "nexios_contrib"
 version = "0.1.1"
-description = "Contributions for Nexios"
+description = "Utility pack for Nexios"
 authors = [
     {name = "Chidebele Dunamis", email = "techwithdunamix@gmail.com"}
 ]
 license = "BSD-3-Clause"
-homepage = "https://github.com/nexios-labs/nexios"
-repository = "https://github.com/nexios-labs/nexios"
-documentation = "https://nexios-labs.github.io/nexios/"
+homepage = "https://github.com/nexios-labs/nexios-contrib"
+repository = "https://github.com/nexios-labs/nexios-contrib"
+documentation = "https://nexios-labs.github.io/nexios/community/"
 readme = "README.md"
 keywords = [
     "ASGI",
