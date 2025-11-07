@@ -33,7 +33,7 @@ app = NexiosApp()
 app.add_middleware(Accepts())
 ```
 
-### 2. Use Dependency Injection in Routes
+### 2. Use Dependency Injection in Route
 
 ```python
 @app.get("/api/content")
