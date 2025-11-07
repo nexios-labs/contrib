@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, TypedDict
 
 from nexios.application import NexiosApp
 from nexios.http import Request, Response
-from nexios.routing import Routes
+from nexios.routing import Route
 
 from .exceptions import JsonRpcError, JsonRpcInvalidParams, JsonRpcInvalidRequest
 from .registry import JsonRpcRegistry, get_registry
@@ -33,7 +33,7 @@ class JsonRpcPlugin:
 
     def _setup(self):
         self.app.add_route(
-            Routes(self.config["path_prefix"], self.handle_jsonrpc, methods=["POST"])
+            Route(self.config["path_prefix"], self.handle_jsonrpc, methods=["POST"])
         )
 
     async def handle_jsonrpc(self, req: Request, res: Response):

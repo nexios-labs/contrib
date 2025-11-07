@@ -60,7 +60,7 @@ all = [
     "click>=8.1.3"
 ]
 dev = [
-    "nexios>=3.0.0",
+    "nexios>=3.2.0",
     "uvicorn>=0.27.0",
     "anyio>=4.0.0",
     "itsdangerous>=2.1.2",

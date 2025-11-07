@@ -34,3 +34,8 @@ setup.py
 .pdm.toml
 .pdm-python
 .pdm-build/
+.pdm-cache/
+.pdm-lock
+.pdm.toml
+.pdmignore
+
