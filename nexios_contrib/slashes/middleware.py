@@ -142,7 +142,7 @@ class SlashesMiddleware(BaseMiddleware):
                     request.url.scheme,
                     request.url.netloc,
                     redirect_path,
-                    request.url.params,
+                    request.path_params,
                     request.url.query,
                     request.url.fragment
                 ))
