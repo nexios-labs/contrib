@@ -45,6 +45,7 @@ packages = ["nexios_contrib"]
 [project.optional-dependencies]
 templating = ["jinja2>=3.1.6"]
 redis = ["redis>=4.0.0"]
+tortoise = ["tortoise-orm>=0.20.0"]
 
 
 
@@ -80,6 +81,7 @@ dev = [
     "isort>=5.13.2",
     "ruff>=0.0.256",
     "black>=23.0.0",
+    "tortoise-orm>=0.20.0",
 
 ]
 
