@@ -12,5 +12,6 @@ from . import proxy
 from . import accepts
 from . import timeout
 from . import redis
+from . import tortoise
 
-__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "timeout", "redis", "dependencies"]
+__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "timeout", "redis", "tortoise", "dependencies"]
