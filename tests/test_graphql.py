@@ -35,5 +35,5 @@ def test_graphiql_html():
     response = client.get("/graphql")
     
     assert response.status_code == 200
-    assert "<!DOCTYPE html>" in response.text
+    assert "<!doctype html>" in response.text
     assert "GraphiQL" in response.text
