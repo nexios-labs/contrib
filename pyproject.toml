@@ -47,6 +47,7 @@ templating = ["jinja2>=3.1.6"]
 redis = ["redis>=4.0.0"]
 tortoise = ["tortoise-orm>=0.20.0"]
 graphql = ["strawberry-graphql>=0.219.0"]
+scalar = ["scalar_docs>=0.1.0"]
 
 
 
