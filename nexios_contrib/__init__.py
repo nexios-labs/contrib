@@ -13,5 +13,6 @@ from . import accepts
 from . import timeout
 from . import redis
 from . import tortoise
+from . import scalar
 
-__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "timeout", "redis", "tortoise", "dependencies"]
+__all__ = ["etag", "jrpc", "slashes", "trusted", "request_id", "proxy", "accepts", "timeout", "redis", "tortoise", "scalar", "dependencies"]
