@@ -45,7 +45,7 @@ packages = ["nexios_contrib"]
 [project.optional-dependencies]
 templating = ["jinja2>=3.1.6"]
 redis = ["redis>=4.0.0"]
-tortoise = ["tortoise-orm>=0.20.0"]
+tortoise = ["tortoise-orm>=0.20.0", "aiosqlite<0.20.0"]
 graphql = ["strawberry-graphql>=0.219.0"]
 scalar = ["scalar_docs>=0.1.0"]
 
@@ -86,6 +86,7 @@ dev = [
     "ruff>=0.0.256",
     "black>=23.0.0",
     "tortoise-orm>=0.20.0",
+    "aiosqlite<0.20.0",
     "strawberry-graphql>=0.219.0",
     "scalar_docs>=0.1.0"
     
