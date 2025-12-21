@@ -109,13 +109,13 @@ class TaskDepend(Generic[T]):
 
 
 def get_task_dependency(
-    request =  Context().request,
+    ctx =  Context(),
 ) -> TaskDepend:
     """Dependency function to get a TaskDepend instance.
     
     This is the recommended way to get a TaskDepend instance in route handlers.
     """
-    return TaskDepend(request)
+    return TaskDepend(ctx.request)
 
 
 def TaskDependency() -> TaskDepend:
