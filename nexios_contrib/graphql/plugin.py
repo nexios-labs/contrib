@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Any
+from typing import Optional, Any, Callable
 
 import strawberry
 from strawberry.types import ExecutionResult
@@ -7,6 +7,7 @@ from strawberry.types import ExecutionResult
 from nexios.application import NexiosApp
 from nexios.http import Request, Response
 from nexios.routing import Route
+from nexios.utils.async_helpers import is_async_callable
 
 
 class GraphQL:
@@ -20,11 +21,13 @@ class GraphQL:
         schema: strawberry.Schema,
         path: str = "/graphql",
         graphiql: bool = True,
+        context_getter: Optional[Callable[[Request, Response], Any]] = None,
     ):
         self.app = app
         self.schema = schema
         self.path = path
         self.graphiql = graphiql
+        self.context_getter = context_getter
         
         self._setup()
 
@@ -54,7 +57,33 @@ class GraphQL:
             variables = data.get("variables")
             operation_name = data.get("operationName")
 
-            context = {"request": req, "response": res}
+            context = {"request": req, "response": res, "req": req}
+            if self.context_getter:
+                if is_async_callable(self.context_getter):
+                    custom_context = await self.context_getter(req, res)
+                else:
+                    custom_context = self.context_getter(req, res)
+                
+                # If custom_context is a dict, merge it
+                if isinstance(custom_context, dict):
+                    context.update(custom_context)
+                else:
+                    # If it's an object, we use it as the base context and inject req/res/req
+                    context = custom_context
+                    try:
+                         setattr(context, "request", req)
+                         setattr(context, "response", res)
+                         setattr(context, "req", req)
+                    except (AttributeError, TypeError):
+                         # If it's not possible to set attributes (e.g. frozen dataclass), 
+                         # we might have issues, but we tried.
+                         pass
+
+            # Final check to ensure request/response/req are always there if context is a dict
+            if isinstance(context, dict):
+                context["request"] = req
+                context["response"] = res
+                context["req"] = req
 
             result: ExecutionResult = await self.schema.execute(
                 query,
