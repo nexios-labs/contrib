@@ -6,11 +6,12 @@ It includes features like task lifecycle management, error handling, and result 
 """
 from __future__ import annotations
 
-from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, Union, cast
 
 from nexios import NexiosApp
-from nexios.dependencies import Depend
+from nexios.dependencies import Depend, current_context
 from nexios.http import Request
+import warnings
 
 from .config import TaskConfig, TaskStatus
 from .dependency import TaskDepend, TaskDependency, get_task_dependency
@@ -120,8 +121,8 @@ def get_task_manager(request: Request) -> TaskManager:
     return task_manager
 
 def create_task(
-    request: Request,
-    func: TaskCallback,
+    request_or_func: Union[Request, TaskCallback],
+    func_or_arg: Optional[Union[TaskCallback, Any]] = None,
     *args: Any,
     name: Optional[str] = None,
     timeout: Optional[float] = None,
@@ -129,47 +130,75 @@ def create_task(
 ) -> Task:
     """Create and schedule a new background task.
     
-    This is a convenience function that gets the task manager from the request
-    and creates a new task with the given function and arguments.
+    This function creates a new background task. It can be called in two ways:
+    
+    1. New (Recommended): create_task(func, *args, **kwargs)
+       The request/task manager is automatically resolved from the current context.
+       
+    2. Deprecated: create_task(request, func, *args, **kwargs)
+       Explicitly passing the request object.
     
     Args:
-        request: The current request object.
-        func: The coroutine function to execute in the background.
-        *args: Positional arguments to pass to the function.
-        name: Optional name for the task (for identification).
-        timeout: Optional timeout in seconds for the task.
-        **kwargs: Keyword arguments to pass to the function.
+        request_or_func: Context request or the task function.
+        func_or_arg: Task function (if request passed first) or first task argument.
+        *args: Additional positional arguments for the task.
+        name: Optional name for the task.
+        timeout: Optional timeout in seconds.
+        **kwargs: Keyword arguments for the task.
         
     Returns:
         The created Task instance.
-        
-    Example:
-        ```python
-        from nexios import Request
-        from nexios_contrib.tasks import create_task
-        
-        async def process_data(data: dict) -> dict:
-            # Long-running processing
-            await asyncio.sleep(5)
-            return {"processed": True, **data}
-            
-        @app.post("/process")
-        async def start_processing(request: Request):
-            data = await request.json()
-            task = create_task(
-                request,
-                process_data,
-                data,
-                name=f"process_{data.get('id')}",
-                timeout=60  # 1 minute timeout
-            )
-            return {"task_id": task.id}
-        ```
     """
+    request: Optional[Request] = None
+    func: TaskCallback
+    task_args: List[Any] = []
+
+    # Check for legacy usage: create_task(request, func, ...)
+    # We check if the first argument looks like a Request (not callable)
+    if not callable(request_or_func) and hasattr(request_or_func, "base_app"):
+        warnings.warn(
+            "Passing 'request' to create_task is deprecated and will be removed in a future version. "
+            "Please use 'create_task(func, *args)' directly, as the context is now automatically resolved.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        request = cast(Request, request_or_func)
+        
+        if func_or_arg is None or not callable(func_or_arg):
+             raise ValueError("When passing request explicitly, the second argument must be a callable task function.")
+        
+        func = cast(TaskCallback, func_or_arg)
+        task_args = list(args)
+
+    else:
+        # New usage: create_task(func, arg1, arg2...)
+        func = cast(TaskCallback, request_or_func)
+        
+        # In this mode, func_or_arg is actually the first argument for the task (if present)
+        if func_or_arg is not None:
+            task_args = [func_or_arg] + list(args)
+        else:
+            task_args = list(args)
+            
+        # Resolve request from context
+        try:
+            ctx = current_context.get()
+            if ctx and ctx.request:
+                request = ctx.request
+        except LookupError:
+            pass
+
+    if request is None:
+        raise RuntimeError(
+            "Could not resolve active request context. "
+            "Ensure you are calling create_task within a Nexios request context, "
+            "or pass the request explicitly (deprecated)."
+        )
+
     task_manager = get_task_manager(request)
     return task_manager.create_task(
         func=func,
-        *args,
+        *task_args,
         name=name,
         timeout=timeout,
         **kwargs
