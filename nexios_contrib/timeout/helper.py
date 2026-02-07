@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Awaitable, Callable, Optional
 
 from nexios.http import Request, Response
 
@@ -69,7 +69,7 @@ def timeout_after(
 
 
 async def timeout_with_fallback(
-    coro: Callable[..., Any],
+    coro: Awaitable[Any],
     timeout: float,
     fallback_value: Any = None,
     fallback_exception: Optional[Exception] = None,
@@ -127,6 +127,19 @@ def set_request_start_time(request: Request) -> None:
     request.start_time = time.time()
 
 
+def get_request_start_time(request: Request) -> Optional[float]:
+    """
+    Get the start time for a request (if set).
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        The start time as a UNIX timestamp, or None if not available.
+    """
+    return getattr(request, "start_time", None)
+
+
 def get_timeout_from_request(
     request: Request,
     default_timeout: float = 30.0
@@ -165,25 +178,25 @@ def get_timeout_from_request(
 
 
 def create_timeout_response(
+    response: Response,
     timeout: float,
-    detail: Optional[str] = None,
+    detail: Any = None,
 ) -> Response:
     """
     Create a timeout error response.
 
     Args:
+        response: The Nexios response manager to write into.
         timeout: The timeout duration that was exceeded.
         detail: Optional detail message.
 
     Returns:
         HTTP response indicating a timeout error.
     """
-    from nexios.http import Response
-
-    return Response(
+    response.set_header("X-Timeout", str(timeout))
+    return response.json(
+        {"error": "Request Timeout", "timeout": timeout, "detail": detail},
         status_code=408,
-        content={"error": "Request Timeout", "timeout": timeout, "detail": detail},
-        headers={"X-Timeout": str(timeout)}
     )
 
 
