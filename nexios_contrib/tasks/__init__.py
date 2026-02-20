@@ -123,9 +123,9 @@ def get_task_manager(request: Request) -> TaskManager:
 def create_task(
     request_or_func: Union[Request, TaskCallback],
     func_or_arg: Optional[Union[TaskCallback, Any]] = None,
-    *args: Any,
     name: Optional[str] = None,
     timeout: Optional[float] = None,
+    *args: Any,
     **kwargs: Any
 ) -> Task:
     """Create and schedule a new background task.
