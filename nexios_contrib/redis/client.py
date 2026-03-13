@@ -9,6 +9,14 @@ from typing import Any, Dict, List, Optional, Union
 import redis
 from nexios_contrib.redis.config import RedisConfig
 
+# Check for async redis availability at module load time
+try:
+    import redis.asyncio as async_redis
+    _REDIS_AVAILABLE = True
+except ImportError:
+    async_redis = None
+    _REDIS_AVAILABLE = False
+
 
 class RedisOperationError(Exception):
     """Raised when there's an error performing a Redis operation."""
@@ -41,24 +49,23 @@ class RedisClient:
             if self._connected:
                 return
 
-            try:
-                import redis.asyncio as redis
+            if not _REDIS_AVAILABLE:
+                raise ImportError(
+                    "redis package is required for Redis integration. "
+                    "Install it with: pip install redis"
+                )
 
+            try:
                 connection_kwargs = self.config.to_connection_kwargs()
 
                 # Create Redis client
-                self._redis = redis.Redis(**connection_kwargs)
+                self._redis = async_redis.Redis(**connection_kwargs)
 
                 # Test connection
                 await self._redis.ping()
 
                 self._connected = True
 
-            except ImportError:
-                raise ImportError(
-                    "redis package is required for Redis integration. "
-                    "Install it with: pip install redis"
-                )
             except Exception as e:
                 raise ConnectionError(f"Failed to connect to Redis: {e}")
 
@@ -213,8 +220,7 @@ class RedisClient:
             await self.connect()
 
         try:
-            import redis.asyncio as redis
-            if hasattr(redis.Redis, "json"):
+            if hasattr(async_redis.Redis, "json"):
                 return await self._redis.json().get(key, path)
             else:
                 # Fallback to regular get and JSON parsing
