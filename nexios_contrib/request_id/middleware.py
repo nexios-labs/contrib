@@ -84,6 +84,7 @@ class RequestIdMiddleware(BaseMiddleware):
         Returns:
             Any: The result from the next middleware or handler.
         """
+        response.empty()
         # Get or generate request ID
         if self.force_generate:
             request_id = generate_request_id()
