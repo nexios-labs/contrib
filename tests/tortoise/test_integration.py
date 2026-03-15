@@ -88,13 +88,13 @@ class TestTortoiseIntegration:
         async def create_user(request, response):
             data = await request.json
             user = await User.create(**data)
-            return response.status(201).json({
+            return response.json({
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
                 "age": user.age,
                 "is_active": user.is_active
-            })
+            }).status(201)
         
         @app.get("/users/{user_id}")
         async def get_user(request, response):
@@ -138,7 +138,7 @@ class TestTortoiseIntegration:
             try:
                 user = await User.get(id=user_id)
                 await user.delete()
-                return response.status(204)
+                return response.empty().status(204)
             except User.DoesNotExist:
                 raise  # Will be handled by exception handler
         
@@ -195,7 +195,7 @@ class TestTortoiseIntegration:
         async def create_user(request, response):
             data = await request.json
             user = await User.create(**data)
-            return response.status(201).json({"id": user.id, "name": user.name})
+            return response.json({"id": user.id, "name": user.name}).status(201)
         
         @app.post("/posts")
         async def create_post(request, response):
@@ -207,11 +207,11 @@ class TestTortoiseIntegration:
                 author=author,
                 published=data.get("published", False)
             )
-            return response.status(201).json({
+            return response.json({
                 "id": post.id,
                 "title": post.title,
                 "author_id": author.id
-            })
+            }).status(201)
         
         @app.get("/posts/{post_id}")
         async def get_post_with_author(request, response):
@@ -262,7 +262,7 @@ class TestTortoiseIntegration:
         async def create_user(request, response):
             data = await request.json
             user = await User.create(**data)
-            return response.status(201).json({"id": user.id})
+            return response.json({"id": user.id}).status(201)
         
         @app.get("/users/{user_id}")
         async def get_user(request, response):
