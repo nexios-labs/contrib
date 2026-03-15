@@ -105,8 +105,7 @@ class TestETagMiddleware:
 
         @app.get("/test")
         async def handler(request, response):
-            response.set_header("etag", '"custom-etag"')
-            return {"message": "Hello, World!"}
+            return response.json({"message": "Hello, World!"}).set_header("etag", '"custom-etag"')
 
         with test_client_factory(app) as client:
             resp = client.get("/test")
@@ -119,8 +118,7 @@ class TestETagMiddleware:
 
         @app.get("/test")
         async def handler(request, response):
-            response.set_header("etag", '"custom-etag"')
-            return {"message": "Hello, World!"}
+            return response.json({"message": "Hello, World!"}).set_header("etag", '"custom-etag"')
 
         with test_client_factory(app) as client:
             resp = client.get("/test")
@@ -288,8 +286,7 @@ class TestETagMiddlewareConditionalRequests:
         @app.get("/test")
         async def handler(request, response):
             # Manually remove any ETag that might be set
-            response.remove_header("etag")
-            return {"message": "Hello, World!"}
+            return response.json({"message":"hell world"}).remove_header("etag")
 
         with test_client_factory(app) as client:
             resp = client.get("/test", headers={"if-none-match": '"some-etag"'})

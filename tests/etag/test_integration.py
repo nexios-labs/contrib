@@ -180,8 +180,7 @@ class TestETagIntegration:
 
         @app.get("/no-override")
         async def handler_no_override(request, response):
-            response.set_header("etag", '"manual-etag"')
-            return {"data": "test"}
+            response.json({"data": "test"}).set_header("etag", '"manual-etag"')
 
         
 

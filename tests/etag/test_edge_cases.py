@@ -120,9 +120,10 @@ class TestETagEdgeCases:
 
         @app.get("/headers")
         async def headers_handler(request, response):
+            response.json({"message": "Hello, World!"})
             response.set_header("x-custom", "value")
             response.set_cookie("session", "abc123")
-            return {"data": "test"}
+            return response
 
         client = TestClient(app)
 
