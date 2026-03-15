@@ -115,13 +115,11 @@ class TestETagConfiguration:
 
         @app1.get("/no-override")
         async def no_override_handler(request, response):
-            response.set_header("etag", '"manual-etag"')
-            return {"data": "test"}
+            return response.json({"data": "test"}).set_header("etag", '"manual-etag"')
 
         @app2.get("/with-override")
         async def with_override_handler(request, response):
-            response.set_header("etag", '"manual-etag"')
-            return {"data": "test"}
+            return response.json({"data": "test"}).set_header("etag", '"manual-etag"')
 
         client1 = TestClient(app1)
         client2 = TestClient(app2)
@@ -146,13 +144,11 @@ class TestETagConfiguration:
 
         @app.get("/get-endpoint")
         async def get_handler(request, response):
-            response.set_header("etag", '"manual-etag"')
-            return {"method": "GET"}
+            return response.json({"method": "GET"}).set_header("etag", '"manual-etag"')
 
         @app.post("/post-endpoint")
         async def post_handler(request, response):
-            response.set_header("etag", '"manual-etag"')
-            return {"method": "POST"}
+            return response.json({"method": "POST"}).set_header("etag", '"manual-etag"')
 
         client = TestClient(app)
 
@@ -173,11 +169,11 @@ class TestETagConfiguration:
 
         @app.get("/test")
         async def get_handler(request, response):
-            return {"method": request.method}
+            return response.json({"method": request.method})
 
         @app.post("/test")
         async def post_handler(request, response):
-            return {"method": request.method}
+            return response.json({"method": request.method})
 
         client = TestClient(app)
 

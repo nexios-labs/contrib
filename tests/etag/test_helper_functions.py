@@ -144,7 +144,7 @@ class TestSetResponseEtag:
         """Test setting ETag on response without existing ETag."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         set_response_etag(response, '"abc123"')
         assert response.headers.get("etag") == '"abc123"'
 
@@ -152,7 +152,7 @@ class TestSetResponseEtag:
         """Test setting ETag with override=True."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"old123"')
         set_response_etag(response, '"new123"', override=True)
         assert response.headers.get("etag") == '"new123"'
@@ -161,7 +161,7 @@ class TestSetResponseEtag:
         """Test that ETag is normalized when set."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         set_response_etag(response, "abc123")  # unquoted
         assert response.headers.get("etag") == '"abc123"'  # quoted
 
@@ -173,7 +173,7 @@ class TestComputeAndSetEtag:
         """Test computing and setting ETag on response without existing."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         etag = compute_and_set_etag(response, body=b"Hello, World!")
         assert etag.startswith('W/"')
         assert response.headers.get("etag") == etag
@@ -182,7 +182,7 @@ class TestComputeAndSetEtag:
         """Test not overriding existing ETag when override=False."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"existing"')
         etag = compute_and_set_etag(response, body=b"Hello, World!", override=False)
         assert response.headers.get("etag") == '"existing"'
@@ -193,7 +193,7 @@ class TestComputeAndSetEtag:
         """Test overriding existing ETag when override=True."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"existing"')
         etag = compute_and_set_etag(response, body=b"Hello, World!", override=True)
         assert response.headers.get("etag") == etag
@@ -203,7 +203,7 @@ class TestComputeAndSetEtag:
         """Test computing strong ETag."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         etag = compute_and_set_etag(response, body=b"Hello, World!", weak=False)
         assert not etag.startswith('W/')
         assert response.headers.get("etag") == etag
@@ -317,7 +317,7 @@ class TestIsFresh:
         """Test freshness when ETag matches."""
         scope = create_mock_scope(headers={"if-none-match": '"abc123"'})
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"abc123"')
         assert is_fresh(request, response) is True
 
@@ -325,7 +325,7 @@ class TestIsFresh:
         """Test freshness when ETag doesn't match."""
         scope = create_mock_scope(headers={"if-none-match": '"def456"'})
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"abc123"')
         assert is_fresh(request, response) is False
 
@@ -333,7 +333,7 @@ class TestIsFresh:
         """Test freshness with weak comparison."""
         scope = create_mock_scope(headers={"if-none-match": 'W/"abc123"'})
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"abc123"')
         assert is_fresh(request, response, weak_compare=True) is True
 
@@ -341,14 +341,14 @@ class TestIsFresh:
         """Test freshness when response has no ETag."""
         scope = create_mock_scope(headers={"if-none-match": '"abc123"'})
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         assert is_fresh(request, response) is False
 
     def test_is_fresh_no_if_none_match(self):
         """Test freshness when request has no If-None-Match."""
         scope = create_mock_scope()
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"abc123"')
         assert is_fresh(request, response) is False
 
@@ -356,6 +356,6 @@ class TestIsFresh:
         """Test freshness with multiple If-None-Match values."""
         scope = create_mock_scope(headers={"if-none-match": '"def456", "abc123"'})
         request = Request(scope, mock_receive, mock_send)
-        response = Response(request)
+        response = Response(request).empty()
         response.set_header("etag", '"abc123"')
         assert is_fresh(request, response) is True
