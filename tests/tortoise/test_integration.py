@@ -2,6 +2,7 @@
 Integration tests for Tortoise ORM with Nexios using in-memory SQLite.
 """
 
+import os
 import pytest
 from tortoise.models import Model
 from tortoise import fields
@@ -47,7 +48,7 @@ class TestTortoiseIntegration:
         # Initialize Tortoise with in-memory SQLite
         init_tortoise(
             app,
-            db_url="sqlite://:memory:",
+            db_url="sqlite://test.db",
             modules={"models": [__name__]},  # Use current module for models
             generate_schemas=True,
             add_exception_handlers=True,
@@ -60,6 +61,7 @@ class TestTortoiseIntegration:
         
         # Cleanup - trigger shutdown
         await app._shutdown()
+        os.remove("test.db")
 
     @pytest.fixture
     def client(self, app):
