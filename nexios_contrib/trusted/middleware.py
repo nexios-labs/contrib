@@ -86,7 +86,7 @@ class TrustedHostMiddleware(BaseMiddleware):
         request: Request,
         response: Response,
         call_next: Any,
-    ) -> None:
+    ) -> Any:
         host = self._extract_host_from_request(request)
         if not host:
             # No host header - reject
@@ -107,4 +107,4 @@ class TrustedHostMiddleware(BaseMiddleware):
                     # For now, we'll just allow it to continue
                     pass
 
-        await call_next()
+        return await call_next()
