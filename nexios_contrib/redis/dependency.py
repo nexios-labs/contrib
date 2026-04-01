@@ -7,9 +7,7 @@ Redis client and performing Redis operations in route handlers.
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
 from nexios.dependencies import Depend, Context
-from nexios.http import Request
 
 from .client import RedisClient
 from . import get_redis
@@ -44,7 +42,4 @@ def RedisDepend() -> RedisClient:
         ```
     """
 
-    def _wrap(context: Context = Context()) -> RedisClient:
-        return get_redis(context)
-
-    return Depend(_wrap)
+    return Depend(get_redis)

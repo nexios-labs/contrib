@@ -3,6 +3,7 @@ Nexios-Redis - Redis integration for Nexios web framework.
 
 This module provides Redis client initialization, dependency injection,
 """
+
 from __future__ import annotations
 
 import json
@@ -14,7 +15,6 @@ from nexios.http import Request, Response
 
 from .client import RedisClient, RedisOperationError
 from .config import RedisConfig
-
 
 
 if TYPE_CHECKING:
@@ -31,6 +31,7 @@ logger = logging.getLogger("nexios.redis")
 
 class RedisConnectionError(Exception):
     """Raised when there's an error connecting to Redis."""
+
     pass
 
 
@@ -79,11 +80,7 @@ def init_redis(
     global _redis_client
 
     config = RedisConfig(
-        url=url,
-        db=db,
-        password=password,
-        decode_responses=decode_responses,
-        **kwargs
+        url=url, db=db, password=password, decode_responses=decode_responses, **kwargs
     )
 
     _redis_client = RedisClient(config)
@@ -113,8 +110,10 @@ def init_redis(
     app.on_startup(_init_redis)
     app.on_shutdown(_close_redis)
 
+    return _redis_client
 
-def get_redis(context: Optional["Context"] = None) -> RedisClient:
+
+def get_redis() -> RedisClient:
     """
     Get the Redis client instance from the current context.
 
@@ -150,7 +149,9 @@ def get_redis(context: Optional["Context"] = None) -> RedisClient:
     """
     global _redis_client
     if _redis_client is None:
-        raise RedisConnectionError("Redis client not initialized. Call init_redis() first.")
+        raise RedisConnectionError(
+            "Redis client not initialized. Call init_redis() first."
+        )
     return _redis_client
 
 

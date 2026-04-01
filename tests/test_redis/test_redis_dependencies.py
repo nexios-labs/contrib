@@ -58,10 +58,8 @@ class TestRedisDependencies:
         redis_dep = RedisDepend()
         
         # Create a mock context
-        context = Context()
-        
         # Call the dependency function
-        redis_client = redis_dep.dependency(context)
+        redis_client = redis_dep.dependency()
         
         assert redis_client is not None
         assert hasattr(redis_client, 'get')
