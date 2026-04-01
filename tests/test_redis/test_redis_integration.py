@@ -133,8 +133,7 @@ class TestRedisIntegration:
         app = test_client_with_redis.app
         
         @app.post("/user/{user_id}/profile")
-        async def update_profile(request: Request, response,redis=Depend(get_redis)):
-            user_id = request.path_params["user_id"]
+        async def update_profile(request: Request, response,user_id,redis=Depend(get_redis)):
             data = await request.json
             
             profile_key = f"profile:{user_id}"
@@ -145,8 +144,7 @@ class TestRedisIntegration:
             return {"user_id": user_id, "status": "updated"}
         
         @app.get("/user/{user_id}/profile")
-        async def get_profile(request: Request, response,redis=Depend(get_redis)):
-            user_id = request.path_params["user_id"]
+        async def get_profile(request: Request, response,user_id,redis=Depend(get_redis)):
             profile_key = f"profile:{user_id}"
             
             profile = await redis.hgetall(profile_key)
