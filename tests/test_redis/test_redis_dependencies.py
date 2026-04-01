@@ -37,8 +37,7 @@ class TestRedisDependencies:
         app = test_client_with_redis.app
         
         @app.get("/cache/{key}")
-        async def get_value(request: Request,response, redis=RedisDepend()):
-            key = request.path_params["key"]
+        async def get_value(request: Request,response,key, redis=RedisDepend()):
             value = await redis.get(key)
             return {"key": key, "value": value}
         
