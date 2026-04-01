@@ -7,8 +7,7 @@ Redis client and performing Redis operations in route handlers.
 
 from __future__ import annotations
 
-import asyncio
-from typing import Any, Literal, Optional, Union
+from typing import Any, Optional, Union
 from nexios.dependencies import Depend, Context
 from nexios.http import Request
 
