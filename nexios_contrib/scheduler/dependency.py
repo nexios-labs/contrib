@@ -81,13 +81,3 @@ def _get_scheduler_depend(ctx: Context = Context()) -> SchedulerDepend:
 
 def SchedulerDepends() -> SchedulerDepend:
     return Depend(_get_scheduler_depend)
-
-
-"""Ready-to-use dependency for route handlers.
-
-Usage::
-
-    @app.get("/jobs")
-    async def list_jobs(sched: SchedulerDepends):
-        return {"jobs": [j.to_dict() for j in sched.get_jobs()]}
-"""
