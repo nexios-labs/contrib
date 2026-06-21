@@ -88,10 +88,16 @@ async def redis_client(redis_config, mock_redis):
         'hget', 'hset', 'hgetall',
         'lpush', 'rpush', 'lpop', 'rpop', 'llen',
         'sadd', 'smembers', 'srem', 'scard',
-        'json_get', 'json_set', 'close', 'execute',
+        'execute_command',
     ]
     for method in _mocked_methods:
         setattr(client, method, getattr(mock_redis, method))
+
+    # json() is a sync method on redis.asyncio.Redis, so use a sync mock
+    mock_json_helper = MagicMock()
+    mock_json_helper.get = getattr(mock_redis, "get")
+    mock_json_helper.set = getattr(mock_redis, "set")
+    client.json = MagicMock(return_value=mock_json_helper)  # type: ignore[method-assign]
 
     yield client
 
@@ -133,10 +139,16 @@ def app_with_mock_redis(mock_redis):
         'hget', 'hset', 'hgetall',
         'lpush', 'rpush', 'lpop', 'rpop', 'llen',
         'sadd', 'smembers', 'srem', 'scard',
-        'json_get', 'json_set', 'close', 'execute',
+        'execute_command',
     ]
     for method in _mocked_methods:
         setattr(client, method, getattr(mock_redis, method))
+
+    # json() is a sync method on redis.asyncio.Redis, so use a sync mock
+    mock_json_helper = MagicMock()
+    mock_json_helper.get = getattr(mock_redis, "get")
+    mock_json_helper.set = getattr(mock_redis, "set")
+    client.json = MagicMock(return_value=mock_json_helper)  # type: ignore[method-assign]
 
     # Store in app state and global variable
     app.state["redis"] = client
