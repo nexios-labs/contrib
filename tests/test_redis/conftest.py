@@ -80,13 +80,21 @@ def mock_redis():
 async def redis_client(redis_config, mock_redis):
     """Create a Redis client with mocked connection."""
     client = RedisClient(redis_config)
-    
-    # Replace the actual Redis connection with our mock
-    client._redis = mock_redis
     client._connected = True
-    
+
+    _mocked_methods = [
+        'ping', 'get', 'set', 'delete', 'exists', 'expire', 'ttl',
+        'incr', 'decr', 'keys', 'flushdb',
+        'hget', 'hset', 'hgetall',
+        'lpush', 'rpush', 'lpop', 'rpop', 'llen',
+        'sadd', 'smembers', 'srem', 'scard',
+        'json_get', 'json_set', 'close', 'execute',
+    ]
+    for method in _mocked_methods:
+        setattr(client, method, getattr(mock_redis, method))
+
     yield client
-    
+
     await client.close()
 
 
@@ -110,24 +118,33 @@ def app_with_redis():
 def app_with_mock_redis(mock_redis):
     """Create a Nexios app with mocked Redis."""
     app = NexiosApp()
-    
+
     # Create a mock Redis client
-    from nexios_contrib.redis import _redis_client
     from nexios_contrib.redis.client import RedisClient
     from nexios_contrib.redis.config import RedisConfig
-    
+
     config = RedisConfig(url="redis://localhost:6379", db=15)
     client = RedisClient(config)
-    client._redis = mock_redis
     client._connected = True
-    
+
+    _mocked_methods = [
+        'ping', 'get', 'set', 'delete', 'exists', 'expire', 'ttl',
+        'incr', 'decr', 'keys', 'flushdb',
+        'hget', 'hset', 'hgetall',
+        'lpush', 'rpush', 'lpop', 'rpop', 'llen',
+        'sadd', 'smembers', 'srem', 'scard',
+        'json_get', 'json_set', 'close', 'execute',
+    ]
+    for method in _mocked_methods:
+        setattr(client, method, getattr(mock_redis, method))
+
     # Store in app state and global variable
     app.state["redis"] = client
     import nexios_contrib.redis
     nexios_contrib.redis._redis_client = client
-    
+
     yield app
-    
+
     # Cleanup
     nexios_contrib.redis._redis_client = None
 
