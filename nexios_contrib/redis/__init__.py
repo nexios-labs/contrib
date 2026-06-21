@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
+from typing import Dict, List, Optional, Union, TYPE_CHECKING
 
 from nexios import NexiosApp, Depend
 from nexios.http import Request, Response
@@ -41,7 +41,15 @@ def init_redis(
     db: int = 0,
     password: Optional[str] = None,
     decode_responses: bool = True,
-    **kwargs: Any,
+    encoding: str = "utf-8",
+    encoding_errors: str = "strict",
+    socket_timeout: Optional[float] = None,
+    socket_connect_timeout: Optional[float] = None,
+    socket_keepalive: bool = False,
+    socket_keepalive_options: Optional[Dict[int, int]] = None,
+    health_check_interval: int = 30,
+    max_connections: Optional[int] = None,
+    retry_on_timeout: bool = False,
 ) -> None:
     """
     Initialize Redis client for use in a Nexios application.
@@ -56,7 +64,15 @@ def init_redis(
         db: Redis database number.
         password: Redis password (if required).
         decode_responses: Whether to decode responses as strings.
-        **kwargs: Additional arguments to pass to Redis client.
+        encoding: Encoding for string operations (default: "utf-8").
+        encoding_errors: Error handling for encoding (default: "strict").
+        socket_timeout: Socket timeout in seconds.
+        socket_connect_timeout: Socket connect timeout in seconds.
+        socket_keepalive: Enable TCP keepalive.
+        socket_keepalive_options: TCP keepalive options.
+        health_check_interval: Health check interval in seconds (default: 30).
+        max_connections: Maximum connection pool size.
+        retry_on_timeout: Retry on timeout.
 
     Example:
         ```python
@@ -73,14 +89,28 @@ def init_redis(
             app,
             url="redis://localhost:6379/1",
             password="mysecret",
-            decode_responses=True
+            decode_responses=True,
+            socket_timeout=10.0,
+            health_check_interval=15,
         )
         ```
     """
     global _redis_client
 
     config = RedisConfig(
-        url=url, db=db, password=password, decode_responses=decode_responses, **kwargs
+        url=url,
+        db=db,
+        password=password,
+        decode_responses=decode_responses,
+        encoding=encoding,
+        encoding_errors=encoding_errors,
+        socket_timeout=socket_timeout,
+        socket_connect_timeout=socket_connect_timeout,
+        socket_keepalive=socket_keepalive,
+        socket_keepalive_options=socket_keepalive_options,
+        health_check_interval=health_check_interval,
+        max_connections=max_connections,
+        retry_on_timeout=retry_on_timeout,
     )
 
     _redis_client = RedisClient(config)
