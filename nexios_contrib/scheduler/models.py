@@ -4,11 +4,11 @@ Data models for the scheduler system.
 This module defines the Job class that represents a scheduled task
 along with its trigger configuration and execution state.
 """
+
 from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, Dict, Optional, TypeVar
 from uuid import uuid4
 
@@ -45,7 +45,7 @@ class ScheduledJob:
         id: Optional[str] = None,
     ) -> None:
         self.id = id or str(uuid4())
-        self.name = name or func.__name__
+        self.name = name or func.__name__  # ty:ignore[unresolved-attribute]
         self.func = func
         self.trigger = trigger
         self.args = args or ()
@@ -128,9 +128,7 @@ class ScheduledJob:
         except Exception as exc:
             self._last_error = str(exc)
             self._status = JobStatus.FAILED
-            self._logger.exception(
-                "Job %s (%s) failed: %s", self.id, self.name, exc
-            )
+            self._logger.exception("Job %s (%s) failed: %s", self.id, self.name, exc)
             raise
         finally:
             self._current_instances -= 1

@@ -1,12 +1,13 @@
 """
 Redis configuration for Nexios Redis integration.
 """
+
 from __future__ import annotations
 
 import os
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class RedisConfig(BaseModel):
@@ -18,61 +19,36 @@ class RedisConfig(BaseModel):
     """
 
     url: str = Field(
-        default="redis://localhost:6379",
-        description="Redis connection URL"
+        default="redis://localhost:6379", description="Redis connection URL"
     )
-    db: int = Field(
-        default=0,
-        ge=0,
-        le=15,
-        description="Redis database number (0-15)"
-    )
-    password: Optional[str] = Field(
-        default=None,
-        description="Redis password"
-    )
+    db: int = Field(default=0, ge=0, le=15, description="Redis database number (0-15)")
+    password: Optional[str] = Field(default=None, description="Redis password")
     decode_responses: bool = Field(
-        default=True,
-        description="Whether to decode responses as strings"
+        default=True, description="Whether to decode responses as strings"
     )
-    encoding: str = Field(
-        default="utf-8",
-        description="Encoding for string operations"
-    )
+    encoding: str = Field(default="utf-8", description="Encoding for string operations")
     encoding_errors: str = Field(
-        default="strict",
-        description="Error handling for encoding"
+        default="strict", description="Error handling for encoding"
     )
     socket_timeout: Optional[float] = Field(
-        default=None,
-        description="Socket timeout in seconds"
+        default=None, description="Socket timeout in seconds"
     )
     socket_connect_timeout: Optional[float] = Field(
-        default=None,
-        description="Socket connect timeout in seconds"
+        default=None, description="Socket connect timeout in seconds"
     )
-    socket_keepalive: bool = Field(
-        default=False,
-        description="Enable TCP keepalive"
-    )
+    socket_keepalive: bool = Field(default=False, description="Enable TCP keepalive")
     socket_keepalive_options: Optional[Dict[int, int]] = Field(
-        default=None,
-        description="TCP keepalive options"
+        default=None, description="TCP keepalive options"
     )
     health_check_interval: int = Field(
-        default=30,
-        description="Health check interval in seconds"
+        default=30, description="Health check interval in seconds"
     )
     max_connections: Optional[int] = Field(
-        default=None,
-        description="Maximum connection pool size"
+        default=None, description="Maximum connection pool size"
     )
-    retry_on_timeout: bool = Field(
-        default=False,
-        description="Retry on timeout"
-    )
+    retry_on_timeout: bool = Field(default=False, description="Retry on timeout")
 
-    @validator("url")
+    @field_validator("url")
     def validate_url(cls, v: str) -> str:
         """Validate Redis URL format."""
         if not v.startswith(("redis://", "rediss://", "unix://")):
@@ -108,20 +84,25 @@ class RedisConfig(BaseModel):
 
             if env_value is not None:
                 # Type conversion for specific fields
-                if field.type_ in (int, float):
+                if field.type_ in (int, float): #ty: ignore
                     try:
-                        if field.type_ == int:
+                        if isinstance(field,int):
                             env_vars[field_name] = int(env_value)
                         else:
                             env_vars[field_name] = float(env_value)
                     except ValueError:
                         continue  # Skip invalid values
-                elif field.type_ == bool:
-                    env_vars[field_name] = env_value.lower() in ("true", "1", "yes", "on")
+                elif isinstance(field,bool):
+                    env_vars[field_name] = env_value.lower() in (
+                        "true",
+                        "1",
+                        "yes",
+                        "on",
+                    )
                 else:
                     env_vars[field_name] = env_value
 
-        return cls(**env_vars)
+        return cls(**env_vars)  # ty:ignore[invalid-argument-type]
 
     def to_connection_kwargs(self) -> Dict[str, Any]:
         """
@@ -130,7 +111,7 @@ class RedisConfig(BaseModel):
         Returns:
             Dictionary of kwargs to pass to Redis client
         """
-        kwargs = self.dict(exclude={"url"})
+        kwargs = self.model_dump(exclude={"url"})
 
         # Handle URL parsing for host, port, etc.
         if self.url.startswith(("redis://", "rediss://")):
@@ -154,7 +135,7 @@ class RedisConfig(BaseModel):
 
     def __str__(self) -> str:
         """String representation of Redis config (without sensitive data)."""
-        safe_dict = self.dict()
+        safe_dict = self.model_dump()
         if self.password:
             safe_dict["password"] = "***"
         return f"RedisConfig({safe_dict})"

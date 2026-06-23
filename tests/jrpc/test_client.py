@@ -3,10 +3,11 @@ Tests for JsonRpcClient functionality.
 """
 
 import json
-import pytest
 
+import pytest
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.jrpc import JsonRpcClient, JsonRpcRegistry
 
 
@@ -33,6 +34,7 @@ class TestJsonRpcClient:
 
         app = NexiosApp()
         from nexios_contrib.jrpc import JsonRpcPlugin
+
         JsonRpcPlugin(app)
 
         return app
@@ -90,7 +92,7 @@ class TestJsonRpcClient:
 
         # This would normally make HTTP requests
         # For testing purposes, we test the method structure
-        assert hasattr(client, 'call')
+        assert hasattr(client, "call")
         assert callable(client.call)
 
         # Test parameters
@@ -104,10 +106,9 @@ class TestJsonRpcClient:
         client = JsonRpcClient("http://localhost:8000/rpc")
 
         # This would normally make async HTTP requests
-        assert hasattr(client, 'acall')
+        assert hasattr(client, "acall")
         assert callable(client.acall)
 
-    
     def test_client_with_different_base_urls(self, client_app):
         """Test client with different base URLs."""
 

@@ -3,9 +3,9 @@ Integration tests for ETag middleware using Nexios client.
 """
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.etag import ETagMiddleware
 
 
@@ -182,15 +182,11 @@ class TestETagIntegration:
         async def handler_no_override(request, response):
             response.json({"data": "test"}).set_header("etag", '"manual-etag"')
 
-        
-
         client = TestClient(app)
 
         # Without override - should keep manual ETag
         resp1 = client.get("/no-override")
         assert resp1.headers["etag"] == '"manual-etag"'
-
-       
 
     def test_etag_strong_vs_weak(self):
         """Test strong vs weak ETag generation."""
@@ -218,7 +214,7 @@ class TestETagIntegration:
         assert weak_resp.headers["etag"].startswith('W/"')
 
         # Strong ETag should not start with W/
-        assert not strong_resp.headers["etag"].startswith('W/')
+        assert not strong_resp.headers["etag"].startswith("W/")
         assert strong_resp.headers["etag"].startswith('"')
 
         # Weak comparison should work between weak and strong

@@ -4,16 +4,17 @@ ETag helper utilities for Nexios.
 This module provides functions for generating, validating, and setting ETag headers.
 It is designed to work with Nexios's Request and Response abstractions.
 """
+
 from __future__ import annotations
 
 import re
 from base64 import b64encode
 from hashlib import sha1
-from typing import Iterable, Optional
+from typing import Iterable
 
 from nexios.http import Request, Response
 
-_WEAK_PREFIX = 'W/'
+_WEAK_PREFIX = "W/"
 _ETAG_TOKEN_RE = re.compile(r"^(W\/)?\s*\"[^\"]*\"\s*$")
 
 
@@ -42,7 +43,7 @@ def normalize_etag(tag: str) -> str:
     tag = tag.strip()
     if not _ETAG_TOKEN_RE.match(tag):
         # Try to coerce when unquoted simple tokens are passed
-        if not tag.startswith('W/'):
+        if not tag.startswith("W/"):
             clean = tag.strip('"')
             tag = f'"{clean}"'
         else:
@@ -67,14 +68,16 @@ def set_response_etag(response: Response, etag: str, override: bool = True) -> N
     response.set_header("etag", tag, overide=override)
 
 
-def compute_and_set_etag(response: Response, body :bytes = b'' ,weak: bool = True, override: bool = False) -> str:
+def compute_and_set_etag(
+    response: Response, body: bytes = b"", weak: bool = True, override: bool = False
+) -> str:
     """
     Compute an ETag for the current response body and set it if not present (or if override=True).
 
     Returns the ETag value used.
     """
     # Response.body returns bytes
-    
+
     tag = generate_etag_from_bytes(body, weak=weak)
     set_response_etag(response, tag, override=override)
     return tag
@@ -112,7 +115,9 @@ def parse_if_match(request: Request) -> list[str]:
     return tags
 
 
-def etag_matches(etag: str, candidates: Iterable[str], weak_compare: bool = True) -> bool:
+def etag_matches(
+    etag: str, candidates: Iterable[str], weak_compare: bool = True
+) -> bool:
     """
     Check if an ETag matches any in candidates.
 

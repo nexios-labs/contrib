@@ -3,9 +3,9 @@ Tests for ETag middleware configuration options.
 """
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.etag import ETagMiddleware
 
 
@@ -51,7 +51,7 @@ class TestETagConfiguration:
         assert resp2.headers["etag"].startswith('W/"')
 
         # Strong should produce strong ETags
-        assert not resp3.headers["etag"].startswith('W/')
+        assert not resp3.headers["etag"].startswith("W/")
         assert resp3.headers["etag"].startswith('"')
 
     def test_methods_configuration(self):
@@ -136,11 +136,13 @@ class TestETagConfiguration:
     def test_combined_configuration_options(self):
         """Test combined configuration options."""
         app = NexiosApp()
-        app.add_middleware(ETagMiddleware(
-            weak=False,  # Strong ETags
-            methods=["GET", "POST"],  # Include POST
-            override=True  # Override manual ETags
-        ))
+        app.add_middleware(
+            ETagMiddleware(
+                weak=False,  # Strong ETags
+                methods=["GET", "POST"],  # Include POST
+                override=True,  # Override manual ETags
+            )
+        )
 
         @app.get("/get-endpoint")
         async def get_handler(request, response):
@@ -154,12 +156,12 @@ class TestETagConfiguration:
 
         # GET should use computed strong ETag (override manual)
         resp1 = client.get("/get-endpoint")
-        assert not resp1.headers["etag"].startswith('W/')
+        assert not resp1.headers["etag"].startswith("W/")
         assert resp1.headers["etag"] != '"manual-etag"'
 
         # POST should also use computed strong ETag (override manual)
         resp2 = client.post("/post-endpoint", json={})
-        assert not resp2.headers["etag"].startswith('W/')
+        assert not resp2.headers["etag"].startswith("W/")
         assert resp2.headers["etag"] != '"manual-etag"'
 
     def test_case_insensitive_methods(self):
@@ -261,9 +263,9 @@ class TestETagConfiguration:
         resp2 = client.get("/text")
         resp3 = client.get("/bytes")
 
-        assert not resp1.headers["etag"].startswith('W/')
-        assert not resp2.headers["etag"].startswith('W/')
-        assert not resp3.headers["etag"].startswith('W/')
+        assert not resp1.headers["etag"].startswith("W/")
+        assert not resp2.headers["etag"].startswith("W/")
+        assert not resp3.headers["etag"].startswith("W/")
 
         # All should be different ETags since content is different
         etags = [resp1.headers["etag"], resp2.headers["etag"], resp3.headers["etag"]]

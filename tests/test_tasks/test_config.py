@@ -1,10 +1,13 @@
 """
 Tests for the task configuration in nexios_contrib.tasks.config.
 """
+
 import logging
+
 import pytest
 
-from nexios_contrib.tasks.config import TaskConfig, TaskStatus, DEFAULT_CONFIG
+from nexios_contrib.tasks.config import DEFAULT_CONFIG, TaskConfig, TaskStatus
+
 
 def test_task_status_enum():
     """Test the TaskStatus enum values."""
@@ -14,15 +17,17 @@ def test_task_status_enum():
     assert TaskStatus.FAILED == "FAILED"
     assert TaskStatus.CANCELLED == "CANCELLED"
 
+
 def test_task_config_defaults():
     """Test TaskConfig default values."""
     config = TaskConfig()
-    
+
     assert config.max_concurrent_tasks == 100
     assert config.default_timeout is None
     assert config.task_result_ttl == 3600  # 1 hour
     assert config.enable_task_history is True
     assert config.log_level == logging.INFO
+
 
 def test_task_config_custom_values():
     """Test TaskConfig with custom values."""
@@ -31,14 +36,15 @@ def test_task_config_custom_values():
         default_timeout=30.0,
         task_result_ttl=1800,  # 30 minutes
         enable_task_history=False,
-        log_level=logging.DEBUG
+        log_level=logging.DEBUG,
     )
-    
+
     assert config.max_concurrent_tasks == 50
     assert config.default_timeout == 30.0
     assert config.task_result_ttl == 1800
     assert config.enable_task_history is False
     assert config.log_level == logging.DEBUG
+
 
 def test_task_config_to_dict():
     """Test converting TaskConfig to dictionary."""
@@ -47,11 +53,11 @@ def test_task_config_to_dict():
         default_timeout=60.0,
         task_result_ttl=7200,
         enable_task_history=True,
-        log_level=logging.WARNING
+        log_level=logging.WARNING,
     )
-    
+
     config_dict = config.to_dict()
-    
+
     assert config_dict == {
         "max_concurrent_tasks": 10,
         "default_timeout": 60.0,
@@ -59,6 +65,7 @@ def test_task_config_to_dict():
         "enable_task_history": True,
         "log_level": logging.WARNING,
     }
+
 
 def test_default_config():
     """Test the default configuration constant."""
@@ -68,4 +75,3 @@ def test_default_config():
     assert DEFAULT_CONFIG.task_result_ttl == 3600
     assert DEFAULT_CONFIG.enable_task_history is True
     assert DEFAULT_CONFIG.log_level == logging.INFO
-

@@ -4,22 +4,23 @@ Accepts middleware for Nexios.
 This middleware provides automatic content negotiation and Accept header
 processing for Nexios applications.
 """
+
 from __future__ import annotations
 
-from typing import Any,List, Optional
+from typing import Any, List, Optional
 
 from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
 
 from .helpers import (
+    create_vary_header,
+    get_accepts_info,
     negotiate_content_type,
     negotiate_language,
-    get_accepts_info,
-    create_vary_header,
-    parse_accept_header,
-    parse_accept_language,
     parse_accept_charset,
     parse_accept_encoding,
+    parse_accept_header,
+    parse_accept_language,
 )
 
 
@@ -87,32 +88,35 @@ class AcceptsMiddleware(BaseMiddleware):
         Returns:
             Any: The result from the next middleware or handler.
         """
-         # Store parsed accepts information in request state if enabled
+        # Store parsed accepts information in request state if enabled
         if self.store_accepts_info:
             accepts_info = get_accepts_info(request)
             request.state.accepts = accepts_info
-            
+
             # Store individual components for easier access
             request.state.accepts_parsed = {
-                'accept': parse_accept_header(request.headers.get('Accept', '')),
-                'accept_language': parse_accept_language(request.headers.get('Accept-Language', '')),
-                'accept_charset': parse_accept_charset(request.headers.get('Accept-Charset', '')),
-                'accept_encoding': parse_accept_encoding(request.headers.get('Accept-Encoding', '')),
+                "accept": parse_accept_header(request.headers.get("Accept", "")),
+                "accept_language": parse_accept_language(
+                    request.headers.get("Accept-Language", "")
+                ),
+                "accept_charset": parse_accept_charset(
+                    request.headers.get("Accept-Charset", "")
+                ),
+                "accept_encoding": parse_accept_encoding(
+                    request.headers.get("Accept-Encoding", "")
+                ),
             }
 
         # Set Vary header if requested
         if self.set_vary_header:
-            if request.headers.get('Accept'):
-                self.vary.append('Accept')
-            if request.headers.get('Accept-Language'):
-                self.vary.append('Accept-Language')
-            if request.headers.get('Accept-Charset'):
-                self.vary.append('Accept-Charset')
-            if request.headers.get('Accept-Encoding'):
-                self.vary.append('Accept-Encoding')
-
-            
-                
+            if request.headers.get("Accept"):
+                self.vary.append("Accept")
+            if request.headers.get("Accept-Language"):
+                self.vary.append("Accept-Language")
+            if request.headers.get("Accept-Charset"):
+                self.vary.append("Accept-Charset")
+            if request.headers.get("Accept-Encoding"):
+                self.vary.append("Accept-Encoding")
 
         return await call_next()
 
@@ -132,21 +136,24 @@ class AcceptsMiddleware(BaseMiddleware):
             Any: The response object.
         """
         if self.vary:
-            existing_vary = response.headers.get('Vary')
-            response.set_header('Vary', create_vary_header(existing_vary, self.vary),overide=True)
+            existing_vary = response.headers.get("Vary")
+            response.set_header(
+                "Vary", create_vary_header(existing_vary, self.vary), overide=True
+            )
         # Set default content type if not already set and Content-Type header is missing
-        if not response.headers.get('Content-Type') and self.default_content_type:
+        if not response.headers.get("Content-Type") and self.default_content_type:
             # Try to negotiate content type based on Accept header
-            accept_header = request.headers.get('Accept')
+            accept_header = request.headers.get("Accept")
             if accept_header:
                 negotiated_type = negotiate_content_type(
-                    accept_header,
-                    [self.default_content_type]
+                    accept_header, [self.default_content_type]
                 )
                 if negotiated_type:
-                    response.set_header('Content-Type', negotiated_type,overide=True)
+                    response.set_header("Content-Type", negotiated_type, overide=True)
             else:
-                response.set_header('Content-Type', self.default_content_type,overide=True)
+                response.set_header(
+                    "Content-Type", self.default_content_type, overide=True
+                )
 
         return response
 
@@ -196,7 +203,7 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         self,
         request: Request,
         available_types: List[str],
-        default_type: Optional[str] = None
+        default_type: Optional[str] = None,
     ) -> str:
         """
         Negotiate the best content type for this request.
@@ -209,7 +216,7 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         Returns:
             str: The best matching content type.
         """
-        accept_header = request.headers.get('Accept')
+        accept_header = request.headers.get("Accept")
         if accept_header:
             negotiated = negotiate_content_type(accept_header, available_types)
             if negotiated:
@@ -221,7 +228,7 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         self,
         request: Request,
         available_languages: List[str],
-        default_language: Optional[str] = None
+        default_language: Optional[str] = None,
     ) -> str:
         """
         Negotiate the best language for this request.
@@ -234,7 +241,7 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         Returns:
             str: The best matching language.
         """
-        accept_language = request.headers.get('Accept-Language')
+        accept_language = request.headers.get("Accept-Language")
         if accept_language:
             negotiated = negotiate_language(accept_language, available_languages)
             if negotiated:
@@ -252,9 +259,9 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         Returns:
             List[str]: List of accepted content types.
         """
-        accepts_parsed = getattr(request.state, 'accepts_parsed', {})
-        accept_items = accepts_parsed.get('accept', [])
-        
+        accepts_parsed = getattr(request.state, "accepts_parsed", {})
+        accept_items = accepts_parsed.get("accept", [])
+
         return [item.value for item in accept_items if item.quality > 0]
 
     def get_accepted_languages(self, request: Request) -> List[str]:
@@ -267,8 +274,8 @@ class ContentNegotiationMiddleware(AcceptsMiddleware):
         Returns:
             List[str]: List of accepted languages.
         """
-        accepts_parsed = getattr(request.state, 'accepts_parsed', {})
-        accept_items = accepts_parsed.get('accept_language', [])
+        accepts_parsed = getattr(request.state, "accepts_parsed", {})
+        accept_items = accepts_parsed.get("accept_language", [])
 
         return [item.value for item in accept_items if item.quality > 0]
 
@@ -286,7 +293,7 @@ class StrictContentNegotiationMiddleware(ContentNegotiationMiddleware):
         *,
         available_types: List[str],
         available_languages: Optional[List[str]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the StrictContentNegotiationMiddleware.
@@ -298,7 +305,7 @@ class StrictContentNegotiationMiddleware(ContentNegotiationMiddleware):
         """
         super().__init__(**kwargs)
         self.available_types = available_types
-        self.available_languages = available_languages or ['en']
+        self.available_languages = available_languages or ["en"]
 
     async def process_request(
         self,
@@ -311,31 +318,29 @@ class StrictContentNegotiationMiddleware(ContentNegotiationMiddleware):
         """
         # Perform strict content negotiation
         best_type = self.negotiate_content_type(
-            request,
-            self.available_types,
-            self.default_content_type
+            request, self.available_types, self.default_content_type
         )
 
         # Check if client accepts the best available type
-        accept_header = request.headers.get('Accept')
+        accept_header = request.headers.get("Accept")
         if accept_header and best_type not in self.available_types:
             # Client doesn't accept any of our available types
             response.status(406)
-            response.set_header('Content-Type', 'application/json')
-            return response.json({
-                "error": "Not Acceptable",
-                "message": "Client does not accept any available content types",
-                "available_types": self.available_types
-            })
+            response.set_header("Content-Type", "application/json")
+            return response.json(
+                {
+                    "error": "Not Acceptable",
+                    "message": "Client does not accept any available content types",
+                    "available_types": self.available_types,
+                }
+            )
 
         # Store negotiation results in request
-        setattr(request, 'negotiated_content_type', best_type)
+        setattr(request, "negotiated_content_type", best_type)
 
         best_language = self.negotiate_language(
-            request,
-            self.available_languages,
-            self.default_language
+            request, self.available_languages, self.default_language
         )
-        setattr(request, 'negotiated_language', best_language)
+        setattr(request, "negotiated_language", best_language)
 
         return await call_next()

@@ -1,6 +1,7 @@
 """
 Redis client wrapper for Nexios integration.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -12,14 +13,16 @@ from nexios_contrib.redis.config import RedisConfig
 # Check for async redis availability at module load time
 try:
     import redis.asyncio as async_redis
+
     _REDIS_AVAILABLE = True
 except ImportError:
-    async_redis = None
+    async_redis = None  # ty:ignore[invalid-assignment]
     _REDIS_AVAILABLE = False
 
 
 class RedisOperationError(Exception):
     """Raised when there's an error performing a Redis operation."""
+
     pass
 
 
@@ -90,7 +93,9 @@ class RedisClient(async_redis.Redis):
         except Exception as e:
             raise RedisOperationError(f"Failed to get JSON from key '{key}': {e}")
 
-    async def json_set(self, key: str, path: str, value: Any, nx: bool = False, xx: bool = False) -> bool:
+    async def json_set(
+        self, key: str, path: str, value: Any, nx: bool = False, xx: bool = False
+    ) -> bool:
         """
         Set JSON value in Redis.
 

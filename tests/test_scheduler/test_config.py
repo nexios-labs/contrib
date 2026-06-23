@@ -1,6 +1,7 @@
 """
 Tests for the scheduler configuration module.
 """
+
 import time
 from datetime import datetime, timezone
 

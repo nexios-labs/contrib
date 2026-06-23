@@ -1,16 +1,17 @@
 """
 Test configuration and fixtures for Redis integration tests.
 """
+
 import asyncio
-import pytest
-import pytest_asyncio
 from typing import AsyncGenerator, Generator
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+import pytest_asyncio
 from nexios import NexiosApp
 from nexios.testclient import TestClient
-from nexios_contrib.redis import RedisClient, RedisConfig, init_redis
 
+from nexios_contrib.redis import RedisClient, RedisConfig, init_redis
 
 # @pytest.fixture(scope="session")
 # def event_loop():
@@ -28,7 +29,7 @@ def redis_config():
         db=15,  # Use a test database
         decode_responses=True,
         socket_timeout=5.0,
-        socket_connect_timeout=5.0
+        socket_connect_timeout=5.0,
     )
 
 
@@ -36,7 +37,7 @@ def redis_config():
 def mock_redis():
     """Create a mock Redis client for testing without actual Redis connection."""
     mock = AsyncMock()
-    
+
     # Mock common Redis operations
     mock.ping.return_value = True
     mock.get.return_value = None
@@ -49,30 +50,30 @@ def mock_redis():
     mock.decr.return_value = 0
     mock.keys.return_value = []
     mock.flushdb.return_value = True
-    
+
     # Hash operations
     mock.hget.return_value = None
     mock.hset.return_value = 1
     mock.hgetall.return_value = {}
-    
+
     # List operations
     mock.lpush.return_value = 1
     mock.rpush.return_value = 1
     mock.lpop.return_value = None
     mock.rpop.return_value = None
     mock.llen.return_value = 0
-    
+
     # Set operations
     mock.sadd.return_value = 1
     mock.smembers.return_value = set()
     mock.srem.return_value = 1
     mock.scard.return_value = 0
-    
+
     # JSON operations (mock for redis-py with JSON support)
     mock.json.return_value = mock
-    
+
     mock.close.return_value = None
-    
+
     return mock
 
 
@@ -83,12 +84,30 @@ async def redis_client(redis_config, mock_redis):
     client._connected = True
 
     _mocked_methods = [
-        'ping', 'get', 'set', 'delete', 'exists', 'expire', 'ttl',
-        'incr', 'decr', 'keys', 'flushdb',
-        'hget', 'hset', 'hgetall',
-        'lpush', 'rpush', 'lpop', 'rpop', 'llen',
-        'sadd', 'smembers', 'srem', 'scard',
-        'execute_command',
+        "ping",
+        "get",
+        "set",
+        "delete",
+        "exists",
+        "expire",
+        "ttl",
+        "incr",
+        "decr",
+        "keys",
+        "flushdb",
+        "hget",
+        "hset",
+        "hgetall",
+        "lpush",
+        "rpush",
+        "lpop",
+        "rpop",
+        "llen",
+        "sadd",
+        "smembers",
+        "srem",
+        "scard",
+        "execute_command",
     ]
     for method in _mocked_methods:
         setattr(client, method, getattr(mock_redis, method))
@@ -108,15 +127,12 @@ async def redis_client(redis_config, mock_redis):
 def app_with_redis():
     """Create a Nexios app with Redis initialized."""
     app = NexiosApp()
-    
+
     # Initialize Redis with test configuration
     init_redis(
-        app,
-        url="redis://localhost:6379",
-        db=15,  # Test database
-        decode_responses=True
+        app, url="redis://localhost:6379", db=15, decode_responses=True  # Test database
     )
-    
+
     return app
 
 
@@ -134,12 +150,30 @@ def app_with_mock_redis(mock_redis):
     client._connected = True
 
     _mocked_methods = [
-        'ping', 'get', 'set', 'delete', 'exists', 'expire', 'ttl',
-        'incr', 'decr', 'keys', 'flushdb',
-        'hget', 'hset', 'hgetall',
-        'lpush', 'rpush', 'lpop', 'rpop', 'llen',
-        'sadd', 'smembers', 'srem', 'scard',
-        'execute_command',
+        "ping",
+        "get",
+        "set",
+        "delete",
+        "exists",
+        "expire",
+        "ttl",
+        "incr",
+        "decr",
+        "keys",
+        "flushdb",
+        "hget",
+        "hset",
+        "hgetall",
+        "lpush",
+        "rpush",
+        "lpop",
+        "rpop",
+        "llen",
+        "sadd",
+        "smembers",
+        "srem",
+        "scard",
+        "execute_command",
     ]
     for method in _mocked_methods:
         setattr(client, method, getattr(mock_redis, method))
@@ -153,6 +187,7 @@ def app_with_mock_redis(mock_redis):
     # Store in app state and global variable
     app.state["redis"] = client
     import nexios_contrib.redis
+
     nexios_contrib.redis._redis_client = client
 
     yield app
@@ -167,7 +202,6 @@ def test_client_with_redis(app_with_mock_redis):
     return TestClient(app_with_mock_redis)
 
 
-
 @pytest.fixture
 def sample_data():
     """Sample data for testing."""
@@ -176,17 +210,17 @@ def sample_data():
             "id": "123",
             "name": "John Doe",
             "email": "john@example.com",
-            "age": 30
+            "age": 30,
         },
         "session": {
             "id": "session_abc123",
             "user_id": "123",
-            "expires_at": "2024-12-31T23:59:59Z"
+            "expires_at": "2024-12-31T23:59:59Z",
         },
         "cache_data": {
             "key": "expensive_computation",
-            "value": {"result": 42, "computed_at": "2024-01-01T00:00:00Z"}
-        }
+            "value": {"result": 42, "computed_at": "2024-01-01T00:00:00Z"},
+        },
     }
 
 
@@ -200,5 +234,5 @@ def redis_keys():
         "cache": "cache:expensive_computation",
         "list": "messages:inbox",
         "set": "tags:article:123",
-        "hash": "profile:123"
+        "hash": "profile:123",
     }

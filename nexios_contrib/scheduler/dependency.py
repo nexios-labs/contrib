@@ -7,7 +7,7 @@ that can be used as a route dependency in Nexios handlers.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from nexios.dependencies import Context, Depend
 from nexios.http import Request
@@ -25,7 +25,7 @@ class SchedulerDepend:
 
     def __init__(self, request: Request) -> None:
         self.request = request
-        self.scheduler: SchedulerManager = request.base_app.scheduler
+        self.scheduler: SchedulerManager = request.base_app.scheduler  # ty:ignore[unresolved-attribute]
 
     def add_job(
         self,
@@ -76,8 +76,9 @@ class SchedulerDepend:
 
 def _get_scheduler_depend(ctx: Context = Context()) -> SchedulerDepend:
     """Factory used by the ``SchedulerDepends`` callable."""
-    return SchedulerDepend(ctx.request)
+    
+    return SchedulerDepend(ctx.request)  # ty:ignore[invalid-argument-type]
 
 
 def SchedulerDepends() -> SchedulerDepend:
-    return Depend(_get_scheduler_depend)
+    return cast(typ=SchedulerDepend, val=Depend(_get_scheduler_depend))

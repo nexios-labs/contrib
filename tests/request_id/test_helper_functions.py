@@ -3,17 +3,18 @@ Tests for Request ID helper functions.
 """
 
 import uuid
-import pytest
 
+import pytest
 from nexios.http import Request, Response
+
 from nexios_contrib.request_id.helper import (
     generate_request_id,
-    get_request_id_from_header,
-    set_request_id_header,
     get_or_generate_request_id,
-    validate_request_id,
-    store_request_id_in_request,
+    get_request_id_from_header,
     get_request_id_from_request,
+    set_request_id_header,
+    store_request_id_in_request,
+    validate_request_id,
 )
 
 
@@ -36,6 +37,7 @@ class TestRequestIdHelpers:
 
     def test_get_request_id_from_header_found(self):
         """Test getting request ID from header when present."""
+
         # Mock request object with headers
         class MockRequest:
             def __init__(self, headers):
@@ -48,6 +50,7 @@ class TestRequestIdHelpers:
 
     def test_get_request_id_from_header_not_found(self):
         """Test getting request ID from header when not present."""
+
         # Mock request object without the header
         class MockRequest:
             def __init__(self, headers):
@@ -60,22 +63,22 @@ class TestRequestIdHelpers:
 
     def test_get_request_id_from_header_custom_header(self):
         """Test getting request ID from custom header."""
+
         # Mock request object with custom header
         class MockRequest:
             def __init__(self, headers):
                 self.headers = headers
 
-        request = MockRequest({"X-Custom-Request-ID": "550e8400-e29b-41d4-a716-446655440000"})
+        request = MockRequest(
+            {"X-Custom-Request-ID": "550e8400-e29b-41d4-a716-446655440000"}
+        )
 
         result = get_request_id_from_header(request, "X-Custom-Request-ID")
         assert result == "550e8400-e29b-41d4-a716-446655440000"
 
-    
-
-    
-
     def test_get_or_generate_request_id_from_header(self):
         """Test get_or_generate_request_id when header is present."""
+
         # Mock request object with header
         class MockRequest:
             def __init__(self, headers):
@@ -88,6 +91,7 @@ class TestRequestIdHelpers:
 
     def test_get_or_generate_request_id_generate_new(self):
         """Test get_or_generate_request_id when header is not present."""
+
         # Mock request object without header
         class MockRequest:
             def __init__(self, headers):
@@ -121,6 +125,7 @@ class TestRequestIdHelpers:
 
     def test_store_request_id_in_request(self):
         """Test storing request ID in request object."""
+
         # Mock request object with state
         class MockState:
             def __init__(self):
@@ -142,6 +147,7 @@ class TestRequestIdHelpers:
 
     def test_store_request_id_in_request_custom_attribute(self):
         """Test storing request ID in request object with custom attribute name."""
+
         # Mock request object with state
         class MockState:
             def __init__(self):
@@ -162,11 +168,6 @@ class TestRequestIdHelpers:
         assert request.state.data["custom_request_id"] == request_id
         assert "request_id" not in request.state.data
 
-    
-
-  
-    
-
     def test_uuid_generation_consistency(self):
         """Test that generated UUIDs are unique."""
         uuids = [generate_request_id() for _ in range(100)]
@@ -177,5 +178,3 @@ class TestRequestIdHelpers:
         # All should be valid UUIDs
         for uid in uuids:
             uuid.UUID(uid)  # Should not raise exception
-
-   

@@ -1,7 +1,7 @@
 import asyncio
 import json
-import urllib.request
 import urllib.error
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Union
 
@@ -24,7 +24,9 @@ class JsonRpcClient:
         """
         self.base_url = base_url
         self.request_id = 0
-        self._executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="jsonrpc-client")
+        self._executor = ThreadPoolExecutor(
+            max_workers=4, thread_name_prefix="jsonrpc-client"
+        )
 
     def _generate_request_id(self) -> int:
         """Generate a unique request ID."""
@@ -143,7 +145,9 @@ class JsonRpcClient:
 
         return method_caller
 
-    async def acall(self, method: str, params: Union[Dict[str, Any], List[Any]] = None) -> Any:
+    async def acall(
+        self, method: str, params: Union[Dict[str, Any], List[Any]] = None
+    ) -> Any:
         """
         Call a JSON-RPC method asynchronously.
 

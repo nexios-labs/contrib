@@ -1,10 +1,10 @@
 """
 Tests for the SchedulerManager class.
 """
+
 import asyncio
 
 import pytest
-
 from nexios import NexiosApp
 
 from nexios_contrib.scheduler.config import (
@@ -224,7 +224,9 @@ class TestSchedulerManager:
         async def failing_task():
             raise RuntimeError("job failed")
 
-        job = scheduler.add_job(failing_task, IntervalTrigger(seconds=1, start_now=True))
+        job = scheduler.add_job(
+            failing_task, IntervalTrigger(seconds=1, start_now=True)
+        )
 
         await scheduler.start()
         await asyncio.sleep(1.5)

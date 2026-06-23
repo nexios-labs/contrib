@@ -4,6 +4,7 @@ Nexios Scheduler - Job Scheduling for Nexios
 Provides interval-based, cron-based, and one-time job scheduling
 integrated with the Nexios application lifecycle and dependency injection.
 """
+
 from __future__ import annotations
 
 from typing import Optional
@@ -73,9 +74,9 @@ def setup_scheduler(
     """
     if not hasattr(app, "scheduler"):
         scheduler = SchedulerManager(app, config=config)
-        app.scheduler = scheduler
+        app.scheduler = scheduler  # ty:ignore[invalid-assignment]
         app.on_startup(scheduler.start)
-    return app.scheduler
+    return app.scheduler  # ty:ignore[unresolved-attribute]
 
 
 def get_scheduler(app: NexiosApp) -> SchedulerManager:

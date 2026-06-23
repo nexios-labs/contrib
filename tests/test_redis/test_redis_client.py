@@ -1,9 +1,11 @@
 """
 Integration tests for RedisClient class.
 """
-import pytest
+
 import json
 from unittest.mock import AsyncMock
+
+import pytest
 
 from nexios_contrib.redis.client import RedisClient, RedisOperationError
 from nexios_contrib.redis.config import RedisConfig
@@ -180,21 +182,27 @@ class TestRedisClient:
         """Test execute error raises RedisOperationError."""
         mock_redis.execute_command.side_effect = Exception("command failed")
 
-        with pytest.raises(RedisOperationError, match="Failed to execute Redis command"):
+        with pytest.raises(
+            RedisOperationError, match="Failed to execute Redis command"
+        ):
             await redis_client.execute("INVALID")
 
     async def test_json_get_error_handling(self, redis_client, mock_redis):
         """Test json_get error raises RedisOperationError."""
         mock_redis.get.side_effect = Exception("parse error")
 
-        with pytest.raises(RedisOperationError, match="Failed to get JSON from key 'bad_key'"):
+        with pytest.raises(
+            RedisOperationError, match="Failed to get JSON from key 'bad_key'"
+        ):
             await redis_client.json_get("bad_key")
 
     async def test_json_set_error_handling(self, redis_client, mock_redis):
         """Test json_set error raises RedisOperationError."""
         mock_redis.set.side_effect = Exception("set failed")
 
-        with pytest.raises(RedisOperationError, match="Failed to set JSON for key 'bad_key'"):
+        with pytest.raises(
+            RedisOperationError, match="Failed to set JSON for key 'bad_key'"
+        ):
             await redis_client.json_set("bad_key", ".", {"a": 1})
 
     def test_client_repr(self, redis_client, redis_config):

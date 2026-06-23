@@ -128,8 +128,6 @@ class TestJsonRpcRegistry:
         assert registry.get_method("first_method") is first_method
         assert registry.get_method("second_method") is second_method
 
-    
-
     def test_registry_isolation_between_tests(self, registry):
         """Test that registry is clean between tests."""
 

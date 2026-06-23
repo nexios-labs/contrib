@@ -3,10 +3,10 @@ Tests for ETag middleware edge cases and error conditions.
 """
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.http import Request, Response
 from nexios.testclient import TestClient
+
 from nexios_contrib.etag import (
     ETagMiddleware,
     etag_matches,
@@ -184,7 +184,9 @@ class TestETagErrorConditions:
         assert resp2.headers["etag"] == valid_etag
 
         # Request with mix of valid and invalid ETags
-        resp3 = client.get("/test", headers={"if-none-match": f'"valid", invalid, {valid_etag}'})
+        resp3 = client.get(
+            "/test", headers={"if-none-match": f'"valid", invalid, {valid_etag}'}
+        )
         assert resp3.status_code == 304  # Should match the valid one
 
     def test_malformed_if_none_match_header(self):
@@ -228,9 +230,6 @@ class TestETagErrorConditions:
         assert not etag_matches(valid_etag, [])
         assert not etag_matches("", [])
 
-    
-
-   
     def test_generate_etag_from_bytes_edge_cases(self):
         """Test generate_etag_from_bytes with edge cases."""
         # Empty bytes

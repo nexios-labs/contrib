@@ -1,15 +1,17 @@
 """
 Helper functions for URL normalization and path handling.
 """
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Optional
+from typing import List
 from urllib.parse import urlparse, urlunparse
 
 
 class SlashAction(Enum):
     """Actions for handling trailing slashes."""
+
     ADD = "add"
     REMOVE = "remove"
     REDIRECT_ADD = "redirect_add"
@@ -77,7 +79,7 @@ def build_normalized_url(
     base_url: str,
     path: str,
     preserve_query: bool = True,
-    preserve_fragment: bool = True
+    preserve_fragment: bool = True,
 ) -> str:
     """
     Build a normalized URL from components.
@@ -100,7 +102,7 @@ def build_normalized_url(
         path,
         parsed.params,
         parsed.query if preserve_query else "",
-        parsed.fragment if preserve_fragment else ""
+        parsed.fragment if preserve_fragment else "",
     ]
 
     return urlunparse(components)
@@ -122,14 +124,16 @@ def clean_url_path(url: str) -> str:
     normalized_path = normalize_path(parsed.path)
 
     # Rebuild URL with normalized path
-    return urlunparse((
-        parsed.scheme,
-        parsed.netloc,
-        normalized_path,
-        parsed.params,
-        parsed.query,
-        parsed.fragment
-    ))
+    return urlunparse(
+        (
+            parsed.scheme,
+            parsed.netloc,
+            normalized_path,
+            parsed.params,
+            parsed.query,
+            parsed.fragment,
+        )
+    )
 
 
 def get_path_segments(path: str) -> List[str]:
@@ -204,14 +208,17 @@ def normalize_url(url: str, preserve_case: bool = True) -> str:
     normalized_path = normalize_path(parsed.path)
 
     # Build normalized URL
-    return urlunparse((
-        parsed.scheme,
-        parsed.netloc,
-        normalized_path,
-        parsed.params,
-        parsed.query,
-        parsed.fragment
-    ))
+    return urlunparse(
+        (
+            parsed.scheme,
+            parsed.netloc,
+            normalized_path,
+            parsed.params,
+            parsed.query,
+            parsed.fragment,
+        )
+    )
 
-def is_double_slash(path:str):
+
+def is_double_slash(path: str):
     return "//" in path

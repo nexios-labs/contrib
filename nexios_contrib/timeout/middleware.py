@@ -4,23 +4,22 @@ Timeout middleware for Nexios.
 This middleware provides request timeout handling and automatic timeout
 responses for Nexios applications.
 """
+
 from __future__ import annotations
+from nexios.http.response import BaseResponse
 
 import asyncio
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
-from nexios.exceptions import HTTPException
 
 from .helper import (
     TimeoutException,
     create_timeout_response,
     get_request_duration,
-    get_timeout_from_request,
     is_timeout_error,
     set_request_start_time,
-    timeout_after,
 )
 
 
@@ -107,18 +106,19 @@ class TimeoutMiddleware(BaseMiddleware):
         timeout = self._get_request_timeout(request)
 
         # Store timeout information in request for later use
-        request.timeout = timeout
-        request.timeout_config = {
-            'default_timeout': self.default_timeout,
-            'max_timeout': self.max_timeout,
-            'min_timeout': self.min_timeout,
-            'timeout_header': self.timeout_header,
-            'timeout_param': self.timeout_param,
+        request.timeout = timeout  # ty:ignore[unresolved-attribute]
+        request.timeout_config = {  # ty:ignore[unresolved-attribute]
+            "default_timeout": self.default_timeout,
+            "max_timeout": self.max_timeout,
+            "min_timeout": self.min_timeout,
+            "timeout_header": self.timeout_header,
+            "timeout_param": self.timeout_param,
         }
 
         try:
             # Apply timeout to the next handler
             if timeout > 0:
+
                 async def timeout_wrapper() -> Any:
                     try:
                         return await asyncio.wait_for(call_next(), timeout=timeout)
@@ -138,10 +138,7 @@ class TimeoutMiddleware(BaseMiddleware):
                 return self._create_timeout_response(request, e)
             else:
                 # Return a basic timeout response
-                return response.json(
-                    status_code=408,
-                    content="Request Timeout"
-                )
+                return response.json(status_code=408, data="Request Timeout")
         except Exception as e:
             # Handle other exceptions
             if is_timeout_error(e):
@@ -167,14 +164,13 @@ class TimeoutMiddleware(BaseMiddleware):
             Response: The modified HTTP response object.
         """
         # Add request duration to response headers if tracking is enabled
-        if self.track_duration and hasattr(request, 'start_time'):
+        if self.track_duration and hasattr(request, "start_time"):
             duration = get_request_duration(request)
-            response.set_header('X-Request-Duration',str(duration))
+            response.set_header("X-Request-Duration", str(duration))
 
             # Add timeout information if available
-            if hasattr(request, 'timeout'):
-                response.set_header('X-Request-Timeout',str(request.timeout))
-
+            if hasattr(request, "timeout"):
+                response.set_header("X-Request-Timeout", str(request.timeout))
 
         return response
 
@@ -234,7 +230,7 @@ class TimeoutMiddleware(BaseMiddleware):
         self,
         request: Request,
         timeout_exception: Union[TimeoutException, Exception],
-    ) -> Response:
+    ) -> BaseResponse:
         """
         Create a timeout error response.
 
@@ -245,19 +241,18 @@ class TimeoutMiddleware(BaseMiddleware):
         Returns:
             Response: HTTP response indicating a timeout error.
         """
-        timeout = getattr(timeout_exception, 'timeout', self.default_timeout)
+        timeout = getattr(timeout_exception, "timeout", self.default_timeout)
 
         # Create the response
         response = create_timeout_response(
             timeout=timeout,
-            detail=str(timeout_exception) if str(timeout_exception) else None
+            detail=str(timeout_exception) if str(timeout_exception) else None,
         )
 
         # Add timing information
-        if hasattr(request, 'start_time'):
+        if hasattr(request, "start_time"):
             duration = get_request_duration(request)
-            response.set_header('X-Actual-Duration',str(duration))
-
+            response.set_header("X-Actual-Duration", str(duration))
 
         return response
 

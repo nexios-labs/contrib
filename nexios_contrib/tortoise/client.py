@@ -1,10 +1,11 @@
 """
 Tortoise ORM client wrapper for Nexios integration.
 """
+
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from .config import TortoiseConfig
 
@@ -13,6 +14,7 @@ logger = logging.getLogger("nexios.tortoise")
 
 class TortoiseConnectionError(Exception):
     """Raised when there's an error connecting to the database."""
+
     pass
 
 
@@ -44,7 +46,7 @@ class TortoiseClient:
 
             # Convert config to Tortoise.init() kwargs
             tortoise_config = self.config.to_tortoise_config()
-            
+
             await Tortoise.init(**tortoise_config)
 
             # Generate schemas if requested
@@ -140,7 +142,7 @@ class TortoiseClient:
             from tortoise import Tortoise
 
             connection = Tortoise.get_connection("default")
-            return await connection.execute_query(query, args)
+            return await connection.execute_query(query, args)  # ty:ignore[invalid-return-type, invalid-argument-type]
 
         except Exception as e:
             logger.error(f"Failed to execute query: {e}")

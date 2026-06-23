@@ -2,13 +2,19 @@
 Scalar DOC plugin for Nexios - Beautiful OpenAPI documentation using Scalar.
 """
 
-from typing import Optional, Dict, Any, Union
+from typing import Any, Dict, Optional, Union
+
 from nexios.application import NexiosApp
 from nexios.http import Request, Response
 from nexios.routing import Route
 
 try:
-    from scalar_doc import ScalarDoc, ScalarConfiguration, ScalarTheme, ScalarHeader, ScalarColorSchema
+    from scalar_doc import (
+        ScalarConfiguration,
+        ScalarDoc,
+        ScalarHeader,
+        ScalarTheme,
+    )
 except ImportError:
     raise ImportError(
         "scalar_doc is required for the Scalar plugin. "
@@ -19,10 +25,10 @@ except ImportError:
 class Scalar:
     """
     Scalar DOC plugin for Nexios.
-    
+
     Provides beautiful, interactive OpenAPI documentation using Scalar.
     """
-    
+
     def __init__(
         self,
         app: NexiosApp,
@@ -37,7 +43,7 @@ class Scalar:
     ):
         """
         Initialize Scalar documentation.
-        
+
         Args:
             app: NexiosApp instance
             path: URL path for the documentation
@@ -58,19 +64,17 @@ class Scalar:
         self.header = header
         self.custom_spec = custom_spec
         self.spec_mode = spec_mode
-        
+
         self._setup()
-    
+
     def _setup(self):
         """Register the Scalar documentation route."""
-        self.app.add_route(
-            Route(self.path, self.handle_request, methods=["GET"])
-        )
-    
+        self.app.add_route(Route(self.path, self.handle_request, methods=["GET"]))
+
     async def handle_request(self, req: Request, res: Response):
         """Handle Scalar documentation requests."""
         return res.html(self._generate_html())
-    
+
     def _generate_html(self) -> str:
         """Generate the Scalar HTML documentation using scalar_doc."""
         # Determine the OpenAPI spec source
@@ -87,45 +91,40 @@ class Scalar:
         else:
             # Use the app's OpenAPI URL
             docs = ScalarDoc.from_spec(spec=self.openapi_url, mode="url")
-        
+
         # Set title
         docs.set_title(self.title)
-        
+
         # Set configuration if provided
         if self.configuration:
             docs.set_configuration(self.configuration)
-        
+
         # Set theme if provided
         if self.theme:
             docs.set_theme(self.theme)
-        
+
         # Set header if provided
         if self.header:
             docs.set_header(self.header)
-        
+
         # Generate HTML using scalar_doc
         return docs.to_html()
-    
+
     @classmethod
     def from_spec(
         cls,
         app: NexiosApp,
         spec: Union[str, Dict[str, Any]],
         mode: str = "url",
-        **kwargs
+        **kwargs,
     ):
         """
         Create Scalar instance from a custom OpenAPI spec.
-        
+
         Args:
             app: NexiosApp instance
             spec: OpenAPI spec (URL, JSON string, or dict)
             mode: Mode for the spec ("url", "json", or "dict")
             **kwargs: Additional arguments for Scalar constructor
         """
-        return cls(
-            app=app,
-            custom_spec=spec,
-            spec_mode=mode,
-            **kwargs
-        )
+        return cls(app=app, custom_spec=spec, spec_mode=mode, **kwargs)
