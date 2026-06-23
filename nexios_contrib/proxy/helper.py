@@ -192,7 +192,7 @@ def get_protocol_from_headers(request: Request) -> str:
         str: The protocol (http/https).
     """
     # Check X-Forwarded-Proto first
-    proto = parse_x_forwarded_proto(request.headers.get("X-Forwarded-Proto",""))
+    proto = parse_x_forwarded_proto(request.headers.get("X-Forwarded-Proto", ""))
     if proto:
         return proto
 
@@ -222,7 +222,7 @@ def get_host_from_headers(request: Request) -> Optional[str]:
         Optional[str]: The real host.
     """
     # Check X-Forwarded-Host first
-    host = parse_x_forwarded_host(request.headers.get("X-Forwarded-Host",""))
+    host = parse_x_forwarded_host(request.headers.get("X-Forwarded-Host", ""))
     if host:
         return host
 

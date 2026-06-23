@@ -101,7 +101,7 @@ class MailTaskManager:
             return None
 
         # Create the background task
-        task =  create_task(
+        task = create_task(
             self._send_email_task,
             to=to,
             subject=subject,
@@ -145,7 +145,7 @@ class MailTaskManager:
             return None
 
         # Create the background task
-        task =  create_task(
+        task = create_task(
             self._send_message_task,
             message,
             name=f"send_message_{message.subject}",
@@ -196,7 +196,7 @@ class MailTaskManager:
             return None
 
         # Create the background task
-        task =  create_task(
+        task = create_task(
             self._send_template_email_task,
             to=to,
             subject=subject,

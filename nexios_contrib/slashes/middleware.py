@@ -15,7 +15,6 @@ from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
 
 
-
 class SlashAction(Enum):
     """Actions for handling trailing slashes."""
 

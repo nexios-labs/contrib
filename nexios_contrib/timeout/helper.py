@@ -197,8 +197,7 @@ def create_timeout_response(
     return JSONResponse(
         {"error": "Request Timeout", "timeout": timeout, "detail": detail},
         status_code=408,
-        headers={"X-Timeout": str(timeout)}
-
+        headers={"X-Timeout": str(timeout)},
     )
 
 
@@ -226,7 +225,7 @@ def format_timeout_duration(seconds: float) -> str:
         Human-readable duration string.
     """
     if seconds < 1:
-        return f"{seconds*1000}ms"
+        return f"{seconds * 1000}ms"
     elif seconds < 60:
         return f"{seconds}s"
     elif seconds < 3600:

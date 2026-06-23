@@ -139,7 +139,6 @@ class Task:
             )
             raise
         except Exception as e:
-
             self._status = TaskStatus.FAILED
             self._result = TaskResult(
                 task_id=self.id,
