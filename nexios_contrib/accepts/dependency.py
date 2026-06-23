@@ -4,19 +4,20 @@ Dependency injection for accepts middleware in Nexios.
 This module provides dependency injection utilities for accessing
 parsed Accept header information from requests.
 """
-from __future__ import annotations
 
-from typing import Any
-from nexios.dependencies import Depend, Context
+from __future__ import annotations
+from typing import cast
+
+
+from nexios.dependencies import Context, Depend
 from nexios.http import Request
+
 from .helpers import AcceptsInfo
 
 
-
-
-
-
-def get_accepts_info_from_request(request: Request, attribute_name: str = "accepts") -> AcceptsInfo:
+def get_accepts_info_from_request(
+    request: Request, attribute_name: str = "accepts"
+) -> AcceptsInfo:
     """
     Get AcceptsInfo object from request.
 
@@ -54,7 +55,9 @@ def AcceptsDepend(attribute_name: str = "accepts") -> AcceptsInfo:
             accepted_types = accepts.get_accepted_types()
             return {"accepted_types": accepted_types}
     """
+
     def _wrap(request: Request = Context().request) -> AcceptsInfo:
         return get_accepts_info_from_request(request, attribute_name)
 
-    return Depend(_wrap)
+    return cast(AcceptsInfo, Depend(_wrap))
+

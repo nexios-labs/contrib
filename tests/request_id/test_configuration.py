@@ -3,11 +3,12 @@ Tests for Request ID dependency injection and configuration.
 """
 
 import uuid
-import pytest
 
+import pytest
 from nexios import NexiosApp
 from nexios.testclient import TestClient
-from nexios_contrib.request_id import RequestIdMiddleware, RequestId
+
+from nexios_contrib.request_id import RequestId, RequestIdMiddleware
 from nexios_contrib.request_id.dependency import RequestIdDepend
 
 
@@ -20,7 +21,7 @@ class TestRequestIdDependency:
         app.add_middleware(RequestIdMiddleware())
 
         @app.get("/test")
-        async def handler(request,response,request_id: str = RequestIdDepend()):
+        async def handler(request, response, request_id: str = RequestIdDepend()):
             return {"request_id": request_id}
 
         with test_client_factory(app) as client:
@@ -45,7 +46,9 @@ class TestRequestIdDependency:
         app.add_middleware(RequestIdMiddleware(request_attribute_name="custom_id"))
 
         @app.get("/test")
-        async def handler(request, response, request_id: str = RequestIdDepend("custom_id")):
+        async def handler(
+            request, response, request_id: str = RequestIdDepend("custom_id")
+        ):
             return {"request_id": request_id}
 
         with test_client_factory(app) as client:
@@ -67,7 +70,7 @@ class TestRequestIdDependency:
         # Note: No middleware added
 
         @app.get("/test")
-        async def handler(request, response,request_id: str = RequestIdDepend()):
+        async def handler(request, response, request_id: str = RequestIdDepend()):
             return {"request_id": request_id}
 
         with test_client_factory(app) as client:
@@ -85,11 +88,11 @@ class TestRequestIdDependency:
         app.add_middleware(RequestIdMiddleware())
 
         @app.get("/endpoint1")
-        async def handler1(request, response,request_id: str = RequestIdDepend()):
+        async def handler1(request, response, request_id: str = RequestIdDepend()):
             return {"endpoint": "1", "request_id": request_id}
 
         @app.get("/endpoint2")
-        async def handler2(request, response,request_id: str = RequestIdDepend()):
+        async def handler2(request, response, request_id: str = RequestIdDepend()):
             return {"endpoint": "2", "request_id": request_id}
 
         with test_client_factory(app) as client:
@@ -116,8 +119,6 @@ class TestRequestIdDependency:
 
 class TestRequestIdConfiguration:
     """Test Request ID configuration options."""
-
-    
 
     def test_force_generate_configuration(self, test_client_factory):
         """Test force_generate configuration option."""
@@ -218,11 +219,13 @@ class TestRequestIdConfiguration:
     def test_convenience_function_configuration(self, test_client_factory):
         """Test RequestId convenience function with custom configuration."""
         app = NexiosApp()
-        app.add_middleware(RequestId(
-            header_name="X-Custom-Request-ID",
-            force_generate=True,
-            request_attribute_name="custom_id"
-        ))
+        app.add_middleware(
+            RequestId(
+                header_name="X-Custom-Request-ID",
+                force_generate=True,
+                request_attribute_name="custom_id",
+            )
+        )
 
         @app.get("/test")
         async def handler(request, response):
@@ -249,13 +252,15 @@ class TestRequestIdConfiguration:
     def test_all_configuration_options_together(self, test_client_factory):
         """Test all configuration options working together."""
         app = NexiosApp()
-        app.add_middleware(RequestIdMiddleware(
-            header_name="X-Trace-ID",
-            force_generate=True,
-            store_in_request=True,
-            request_attribute_name="trace_id",
-            include_in_response=True
-        ))
+        app.add_middleware(
+            RequestIdMiddleware(
+                header_name="X-Trace-ID",
+                force_generate=True,
+                store_in_request=True,
+                request_attribute_name="trace_id",
+                include_in_response=True,
+            )
+        )
 
         @app.get("/test")
         async def handler(request, response):

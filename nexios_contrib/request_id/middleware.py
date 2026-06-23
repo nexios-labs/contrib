@@ -4,9 +4,10 @@ Request ID middleware for Nexios.
 This middleware automatically generates or extracts request IDs from incoming requests
 and includes them in response headers for better request tracing and debugging.
 """
+
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
@@ -17,7 +18,6 @@ from .helper import (
     get_request_id_from_header,
     set_request_id_header,
     store_request_id_in_request,
-    get_request_id_from_request,
 )
 
 
@@ -96,7 +96,9 @@ class RequestIdMiddleware(BaseMiddleware):
         self.request_id = request_id
         # Store request ID in request object if enabled
         if self.store_in_request:
-            store_request_id_in_request(request, request_id, self.request_attribute_name)
+            store_request_id_in_request(
+                request, request_id, self.request_attribute_name
+            )
 
         # Store request ID in response headers if enabled
         if self.include_in_response:

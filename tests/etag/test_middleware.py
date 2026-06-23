@@ -3,10 +3,10 @@ Tests for ETagMiddleware.
 """
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.http import Request, Response
 from nexios.testclient import TestClient
+
 from nexios_contrib.etag import ETagMiddleware
 
 
@@ -95,7 +95,7 @@ class TestETagMiddleware:
 
         with test_client_factory(app) as client:
             resp = client.get("/test")
-            assert not resp.headers["etag"].startswith('W/')
+            assert not resp.headers["etag"].startswith("W/")
             assert resp.headers["etag"].startswith('"')
 
     def test_middleware_does_not_override_existing_etag(self, test_client_factory):
@@ -105,7 +105,9 @@ class TestETagMiddleware:
 
         @app.get("/test")
         async def handler(request, response):
-            return response.json({"message": "Hello, World!"}).set_header("etag", '"custom-etag"')
+            return response.json({"message": "Hello, World!"}).set_header(
+                "etag", '"custom-etag"'
+            )
 
         with test_client_factory(app) as client:
             resp = client.get("/test")
@@ -118,7 +120,9 @@ class TestETagMiddleware:
 
         @app.get("/test")
         async def handler(request, response):
-            return response.json({"message": "Hello, World!"}).set_header("etag", '"custom-etag"')
+            return response.json({"message": "Hello, World!"}).set_header(
+                "etag", '"custom-etag"'
+            )
 
         with test_client_factory(app) as client:
             resp = client.get("/test")
@@ -237,7 +241,10 @@ class TestETagMiddlewareConditionalRequests:
             etag = resp1.headers["etag"]
 
             # Second request with multiple ETags including the matching one
-            resp2 = client.get("/test", headers={"if-none-match": f'"other-etag", {etag}, "another-etag"'})
+            resp2 = client.get(
+                "/test",
+                headers={"if-none-match": f'"other-etag", {etag}, "another-etag"'},
+            )
             assert resp2.status_code == 304
 
     def test_conditional_get_weak_etag_match(self, test_client_factory):
@@ -255,7 +262,9 @@ class TestETagMiddlewareConditionalRequests:
             etag = resp1.headers["etag"]
 
             # Second request with weak version of same ETag
-            weak_etag = etag.replace('W/"', '"') if etag.startswith('W/') else f'W/{etag}'
+            weak_etag = (
+                etag.replace('W/"', '"') if etag.startswith("W/") else f"W/{etag}"
+            )
             resp2 = client.get("/test", headers={"if-none-match": weak_etag})
             assert resp2.status_code == 304
 
@@ -286,7 +295,7 @@ class TestETagMiddlewareConditionalRequests:
         @app.get("/test")
         async def handler(request, response):
             # Manually remove any ETag that might be set
-            return response.json({"message":"hell world"}).remove_header("etag")
+            return response.json({"message": "hell world"}).remove_header("etag")
 
         with test_client_factory(app) as client:
             resp = client.get("/test", headers={"if-none-match": '"some-etag"'})

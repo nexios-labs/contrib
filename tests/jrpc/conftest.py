@@ -3,12 +3,12 @@ Test configuration and fixtures for nexios-contrib jrpc tests.
 """
 
 import functools
-from typing import Callable, Optional, Any
+from typing import Any, Callable, Optional
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.jrpc import JsonRpcPlugin, JsonRpcRegistry, get_registry
 
 
@@ -21,6 +21,7 @@ def test_client_factory():
 @pytest.fixture
 def app_factory():
     """Factory for creating NexiosApp instances with optional JRPC plugin."""
+
     def _create_app(jrpc_config: Optional[dict] = None):
         app = NexiosApp()
         if jrpc_config:

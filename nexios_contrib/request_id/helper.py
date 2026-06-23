@@ -4,6 +4,7 @@ Request ID helper functions for Nexios.
 This module provides utilities for generating, managing, and working with request IDs
 in the Nexios framework.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -23,8 +24,7 @@ def generate_request_id() -> str:
 
 
 def get_request_id_from_header(
-    request: Request,
-    header_name: str = "X-Request-ID"
+    request: Request, header_name: str = "X-Request-ID"
 ) -> Optional[str]:
     """
     Extract request ID from request headers.
@@ -40,9 +40,7 @@ def get_request_id_from_header(
 
 
 def set_request_id_header(
-    response: Response,
-    request_id: str,
-    header_name: str = "X-Request-ID"
+    response: Response, request_id: str, header_name: str = "X-Request-ID"
 ) -> None:
     """
     Set the request ID in the response headers.
@@ -52,12 +50,11 @@ def set_request_id_header(
         request_id: The request ID to set.
         header_name: The header name to use (default: "X-Request-ID").
     """
-    response.set_header(header_name, request_id,overide=True)
+    response.set_header(header_name, request_id, overide=True)
 
 
 def get_or_generate_request_id(
-    request: Request,
-    header_name: str = "X-Request-ID"
+    request: Request, header_name: str = "X-Request-ID"
 ) -> str:
     """
     Get request ID from request headers or generate a new one.
@@ -93,9 +90,7 @@ def validate_request_id(request_id: str) -> bool:
 
 
 def store_request_id_in_request(
-    request: Request,
-    request_id: str,
-    attribute_name: str = "request_id"
+    request: Request, request_id: str, attribute_name: str = "request_id"
 ) -> None:
     """
     Store request ID in the request object for later access.
@@ -109,8 +104,7 @@ def store_request_id_in_request(
 
 
 def get_request_id_from_request(
-    request: Request,
-    attribute_name: str = "request_id"
+    request: Request, attribute_name: str = "request_id"
 ) -> Optional[str]:
     """
     Retrieve request ID from the request object.
@@ -122,4 +116,4 @@ def get_request_id_from_request(
     Returns:
         Optional[str]: The stored request ID if found, None otherwise.
     """
-    return getattr(request.state,attribute_name,None)
+    return getattr(request.state, attribute_name, None)

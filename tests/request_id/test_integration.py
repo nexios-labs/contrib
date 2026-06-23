@@ -3,10 +3,10 @@ Integration tests for Request ID middleware using Nexios client.
 """
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
-from nexios_contrib.request_id import RequestIdMiddleware, RequestId
+
+from nexios_contrib.request_id import RequestId, RequestIdMiddleware
 
 
 class TestRequestIdIntegration:
@@ -33,6 +33,7 @@ class TestRequestIdIntegration:
 
         # Validate UUID format
         import uuid
+
         assert uuid.UUID(request_id) is not None
 
     def test_request_id_persistence_across_requests(self):
@@ -57,7 +58,11 @@ class TestRequestIdIntegration:
         assert "X-Request-ID" in resp3.headers
 
         # All request IDs should be unique
-        request_ids = [resp1.headers["X-Request-ID"], resp2.headers["X-Request-ID"], resp3.headers["X-Request-ID"]]
+        request_ids = [
+            resp1.headers["X-Request-ID"],
+            resp2.headers["X-Request-ID"],
+            resp3.headers["X-Request-ID"],
+        ]
         assert len(set(request_ids)) == 3
 
     def test_request_id_extraction_from_headers(self):
@@ -140,7 +145,7 @@ class TestRequestIdIntegration:
         request_ids = [
             resp1.headers["X-Request-ID"],
             resp2.headers["X-Request-ID"],
-            resp3.headers["X-Request-ID"]
+            resp3.headers["X-Request-ID"],
         ]
         assert len(set(request_ids)) == 3
 
@@ -191,6 +196,7 @@ class TestRequestIdIntegration:
 
         # Should be a valid UUID
         import uuid
+
         assert uuid.UUID(resp.headers["X-Request-ID"]) is not None
 
     def test_request_id_custom_header_name(self):
@@ -213,6 +219,7 @@ class TestRequestIdIntegration:
 
         # Should be valid UUID
         import uuid
+
         assert uuid.UUID(resp.headers["X-Custom-Request-ID"]) is not None
 
     def test_request_id_without_response_inclusion(self):
@@ -252,4 +259,5 @@ class TestRequestIdIntegration:
 
         # Should be valid UUID
         import uuid
+
         assert uuid.UUID(resp.headers["X-Request-ID"]) is not None

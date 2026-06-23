@@ -5,33 +5,26 @@ Tests for JRPC exception handling.
 import json
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.jrpc import JsonRpcPlugin, JsonRpcRegistry
 from nexios_contrib.jrpc.exceptions import (
+    JsonRpcClientError,
     JsonRpcError,
-    JsonRpcMethodNotFound,
     JsonRpcInvalidParams,
     JsonRpcInvalidRequest,
-    JsonRpcClientError
+    JsonRpcMethodNotFound,
 )
 
 
 class TestJRPCExceptions:
     """Tests for JRPC exception handling."""
 
-   
-
-    
     def test_invalid_request_missing_method(self, jrpc_app, jrpc_client):
         """Test invalid request - missing method."""
 
-        payload = {
-            "jsonrpc": "2.0",
-            "params": {},
-            "id": 1
-        }
+        payload = {"jsonrpc": "2.0", "params": {}, "id": 1}
 
         response = jrpc_client.post("/rpc", json=payload)
         assert response.status_code == 200
@@ -44,12 +37,7 @@ class TestJRPCExceptions:
     def test_invalid_request_invalid_method_type(self, jrpc_app, jrpc_client):
         """Test invalid request - method is not a string."""
 
-        payload = {
-            "jsonrpc": "2.0",
-            "method": 123,
-            "params": {},
-            "id": 1
-        }
+        payload = {"jsonrpc": "2.0", "method": 123, "params": {}, "id": 1}
 
         response = jrpc_client.post("/rpc", json=payload)
         assert response.status_code == 200
@@ -66,7 +54,7 @@ class TestJRPCExceptions:
             "jsonrpc": "2.0",
             "method": "test",
             "params": "invalid_params",
-            "id": 1
+            "id": 1,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -84,7 +72,7 @@ class TestJRPCExceptions:
             "jsonrpc": "2.0",
             "method": "test",
             "params": {},
-            "id": {"invalid": "id"}
+            "id": {"invalid": "id"},
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -95,8 +83,6 @@ class TestJRPCExceptions:
         assert result["error"]["code"] == -32600
         assert "Id must be a string or number" in result["error"]["message"]
 
-    
-
     def test_method_exception_handling(self, jrpc_app, jrpc_client, registry):
         """Test handling of exceptions raised in methods."""
 
@@ -104,12 +90,7 @@ class TestJRPCExceptions:
         def failing_method() -> str:
             raise ValueError("Something went wrong")
 
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "failing_method",
-            "params": {},
-            "id": 1
-        }
+        payload = {"jsonrpc": "2.0", "method": "failing_method", "params": {}, "id": 1}
 
         response = jrpc_client.post("/rpc", json=payload)
         assert response.status_code == 200
@@ -120,7 +101,6 @@ class TestJRPCExceptions:
         assert "Internal error" in result["error"]["message"]
         assert "Something went wrong" in result["error"]["data"]
 
-    
     def test_notification_request(self, jrpc_app, jrpc_client, registry):
         """Test notification request (no id)."""
 
@@ -132,7 +112,7 @@ class TestJRPCExceptions:
         payload = {
             "jsonrpc": "2.0",
             "method": "log_message",
-            "params": {"message": "test"}
+            "params": {"message": "test"},
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -145,10 +125,6 @@ class TestJRPCExceptions:
         # But no id field for notifications
         assert result["id"] is None
 
-
-
-    
-
     def test_json_rpc_error_class(self):
         """Test JsonRpcError class."""
 
@@ -159,7 +135,9 @@ class TestJRPCExceptions:
         assert error.data is None
 
         # Test with data
-        error_with_data = JsonRpcError(code=-32001, message="Error with data", data={"extra": "info"})
+        error_with_data = JsonRpcError(
+            code=-32001, message="Error with data", data={"extra": "info"}
+        )
         assert error_with_data.data == {"extra": "info"}
 
     def test_json_rpc_method_not_found_exception(self):

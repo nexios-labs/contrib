@@ -4,9 +4,9 @@ Utility functions for Redis operations in Nexios.
 This module provides convenient functions for common Redis operations
 that can be used directly in Nexios route handlers.
 """
+
 from __future__ import annotations
 
-import json
 from typing import Any, Dict, List, Optional, Union
 
 from nexios_contrib.redis import get_redis_client
@@ -31,8 +31,8 @@ async def redis_get(key: str) -> Optional[str]:
             print(f"User data: {value}")
         ```
     """
-    redis =  get_redis_client()
-    return await redis.get(key)
+    redis = get_redis_client()
+    return await redis.get(key)  # ty:ignore[invalid-return-type]
 
 
 async def redis_set(
@@ -69,7 +69,7 @@ async def redis_set(
         ```
     """
     redis = get_redis_client()
-    return await redis.set(key, value, ex=ex, px=px, nx=nx, xx=xx)
+    return await redis.set(key, value, ex=ex, px=px, nx=nx, xx=xx)  # ty:ignore[invalid-return-type]
 
 
 async def redis_delete(*keys: str) -> int:
@@ -192,7 +192,7 @@ async def redis_incr(key: str, amount: int = 1) -> int:
         ```
     """
     redis = get_redis_client()
-    return await redis.incr(key, amount)
+    return await redis.incr(key, amount)  # ty:ignore[invalid-await]
 
 
 async def redis_decr(key: str, amount: int = 1) -> int:
@@ -215,7 +215,7 @@ async def redis_decr(key: str, amount: int = 1) -> int:
         ```
     """
     redis = get_redis_client()
-    return await redis.decr(key, amount)
+    return await redis.decr(key, amount)  # ty:ignore[invalid-await]
 
 
 async def redis_json_get(key: str, path: str = ".") -> Any:
@@ -295,7 +295,7 @@ async def redis_hget(key: str, field: str) -> Optional[str]:
         ```
     """
     redis = get_redis_client()
-    return await redis.hget(key, field)
+    return await redis.hget(key, field)  # ty:ignore[invalid-return-type]
 
 
 async def redis_hset(key: str, field: str, value: Union[str, int, float]) -> int:
@@ -341,7 +341,7 @@ async def redis_hgetall(key: str) -> Dict[str, str]:
         ```
     """
     redis = get_redis_client()
-    return await redis.hgetall(key)
+    return await redis.hgetall(key)  # ty:ignore[invalid-return-type]
 
 
 async def redis_lpush(key: str, *values: Union[str, int, float]) -> int:
@@ -390,7 +390,9 @@ async def redis_rpush(key: str, *values: Union[str, int, float]) -> int:
     return await redis.rpush(key, *values)
 
 
-async def redis_lpop(key: str, count: Optional[int] = None) -> Union[Optional[str], List[str]]:
+async def redis_lpop(
+    key: str, count: Optional[int] = None
+) -> Union[Optional[str], List[str]]:
     """
     Remove and return the first element(s) of a list.
 
@@ -411,10 +413,12 @@ async def redis_lpop(key: str, count: Optional[int] = None) -> Union[Optional[st
         ```
     """
     redis = get_redis_client()
-    return await redis.lpop(key, count)
+    return await redis.lpop(key, count)  # ty:ignore[invalid-return-type]
 
 
-async def redis_rpop(key: str, count: Optional[int] = None) -> Union[Optional[str], List[str]]:
+async def redis_rpop(
+    key: str, count: Optional[int] = None
+) -> Union[Optional[str], List[str]]:
     """
     Remove and return the last element(s) of a list.
 
@@ -435,7 +439,7 @@ async def redis_rpop(key: str, count: Optional[int] = None) -> Union[Optional[st
         ```
     """
     redis = get_redis_client()
-    return await redis.rpop(key, count)
+    return await redis.rpop(key, count)  # ty:ignore[invalid-return-type]
 
 
 async def redis_llen(key: str) -> int:
@@ -502,7 +506,7 @@ async def redis_smembers(key: str) -> List[str]:
         ```
     """
     redis = get_redis_client()
-    return await redis.smembers(key)
+    return await redis.smembers(key)  # ty:ignore[invalid-return-type]
 
 
 async def redis_srem(key: str, *members: Union[str, int, float]) -> int:
@@ -569,7 +573,7 @@ async def redis_keys(pattern: str = "*") -> List[str]:
         ```
     """
     redis = get_redis_client()
-    return await redis.keys(pattern)
+    return await redis.keys(pattern)  # ty:ignore[invalid-return-type]
 
 
 async def redis_flushdb(asynchronous: bool = False) -> bool:

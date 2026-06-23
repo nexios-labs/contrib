@@ -8,14 +8,13 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Dict, List, Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-from nexios import NexiosApp, Depend
+from nexios import Depend, NexiosApp
 from nexios.http import Request, Response
 
 from .client import RedisClient, RedisOperationError
 from .config import RedisConfig
-
 
 if TYPE_CHECKING:
     from nexios.dependencies import Context
@@ -50,7 +49,7 @@ def init_redis(
     health_check_interval: int = 30,
     max_connections: Optional[int] = None,
     retry_on_timeout: bool = False,
-) -> None:
+) -> RedisClient:
     """
     Initialize Redis client for use in a Nexios application.
 
@@ -113,7 +112,7 @@ def init_redis(
         retry_on_timeout=retry_on_timeout,
     )
 
-    _redis_client = RedisClient(config)
+    _redis_client = RedisClient(config)  # ty:ignore[invalid-argument-type]
 
     # Store Redis client in app state for easy access
     app.state["redis"] = _redis_client

@@ -13,32 +13,35 @@ from typing import Any, Dict, List, Optional, Union
 from nexios.http import Request
 
 try:
-    from ..tasks import create_task, Task
+    from ..tasks import Task, create_task
+
     TASKS_AVAILABLE = True
 except ImportError:
     TASKS_AVAILABLE = False
 
 from .client import MailClient
 from .models import EmailMessage, EmailResult
+from . import get_mail_from_request
+
 
 logger = logging.getLogger(__name__)
 
 
 class MailTaskManager:
     """Manager for email background tasks.
-    
+
     This class provides methods to send emails in the background
     using the nexios-contrib tasks system.
     """
-    
+
     def __init__(self, mail_client: MailClient) -> None:
         """Initialize the mail task manager.
-        
+
         Args:
             mail_client: The mail client instance.
         """
         self.mail_client = mail_client
-    
+
     async def send_email_async(
         self,
         to: Union[str, List[str]],
@@ -54,10 +57,10 @@ class MailTaskManager:
         template_context: Optional[Dict[str, Any]] = None,
         priority: str = "normal",
         timeout: Optional[float] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Optional[Task]:
         """Send an email in the background.
-        
+
         Args:
             to: Recipient email address(es).
             subject: Email subject.
@@ -73,12 +76,14 @@ class MailTaskManager:
             priority: Task priority ("low", "normal", "high").
             timeout: Task timeout in seconds.
             **kwargs: Additional email parameters.
-            
+
         Returns:
             Task instance if tasks are available, None otherwise.
         """
         if not TASKS_AVAILABLE:
-            logger.warning("Background tasks not available, sending email synchronously")
+            logger.warning(
+                "Background tasks not available, sending email synchronously"
+            )
             await self.mail_client.send_email(
                 to=to,
                 subject=subject,
@@ -91,12 +96,12 @@ class MailTaskManager:
                 attachments=attachments,
                 template_name=template_name,
                 template_context=template_context,
-                **kwargs
+                **kwargs,
             )
             return None
-        
+
         # Create the background task
-        task = await create_task(
+        task =  create_task(
             self._send_email_task,
             to=to,
             subject=subject,
@@ -110,44 +115,46 @@ class MailTaskManager:
             template_name=template_name,
             template_context=template_context,
             name=f"send_email_{subject}",
-            timeout=timeout or self.mail_client.config.task_timeout
+            timeout=timeout or self.mail_client.config.task_timeout,
         )
-        
+
         logger.info(f"Email task created: {task.id} for {subject}")
         return task
-    
+
     async def send_message_async(
         self,
         message: EmailMessage,
         priority: str = "normal",
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> Optional[Task]:
         """Send an EmailMessage in the background.
-        
+
         Args:
             message: The EmailMessage to send.
             priority: Task priority ("low", "normal", "high").
             timeout: Task timeout in seconds.
-            
+
         Returns:
             Task instance if tasks are available, None otherwise.
         """
         if not TASKS_AVAILABLE:
-            logger.warning("Background tasks not available, sending message synchronously")
+            logger.warning(
+                "Background tasks not available, sending message synchronously"
+            )
             await self.mail_client.send_message(message)
             return None
-        
+
         # Create the background task
-        task = await create_task(
+        task =  create_task(
             self._send_message_task,
             message,
             name=f"send_message_{message.subject}",
-            timeout=timeout or self.mail_client.config.task_timeout
+            timeout=timeout or self.mail_client.config.task_timeout,
         )
-        
+
         logger.info(f"Email message task created: {task.id} for {message.subject}")
         return task
-    
+
     async def send_template_email_async(
         self,
         to: Union[str, List[str]],
@@ -157,10 +164,10 @@ class MailTaskManager:
         from_email: Optional[str] = None,
         priority: str = "normal",
         timeout: Optional[float] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Optional[Task]:
         """Send a template email in the background.
-        
+
         Args:
             to: Recipient email address(es).
             subject: Email subject.
@@ -170,24 +177,26 @@ class MailTaskManager:
             priority: Task priority ("low", "normal", "high").
             timeout: Task timeout in seconds.
             **kwargs: Additional email parameters.
-            
+
         Returns:
             Task instance if tasks are available, None otherwise.
         """
         if not TASKS_AVAILABLE:
-            logger.warning("Background tasks not available, sending template email synchronously")
+            logger.warning(
+                "Background tasks not available, sending template email synchronously"
+            )
             await self.mail_client.send_template_email(
                 to=to,
                 subject=subject,
                 template_name=template_name,
                 context=context,
                 from_email=from_email,
-                **kwargs
+                **kwargs,
             )
             return None
-        
+
         # Create the background task
-        task = await create_task(
+        task =  create_task(
             self._send_template_email_task,
             to=to,
             subject=subject,
@@ -196,19 +205,19 @@ class MailTaskManager:
             from_email=from_email,
             name=f"send_template_email_{subject}",
             timeout=timeout or self.mail_client.config.task_timeout,
-            **kwargs
+            **kwargs,
         )
-        
+
         logger.info(f"Template email task created: {task.id} for {subject}")
         return task
-    
+
     async def _send_email_task(self, *args: Any, **kwargs: Any) -> EmailResult:
         """Background task for sending emails.
-        
+
         Args:
             *args: Positional arguments for send_email.
             **kwargs: Keyword arguments for send_email.
-            
+
         Returns:
             EmailResult from the mail client.
         """
@@ -222,27 +231,29 @@ class MailTaskManager:
         except Exception as e:
             logger.error(f"Background email task error: {e}")
             raise
-    
+
     async def _send_message_task(self, message: EmailMessage) -> EmailResult:
         """Background task for sending EmailMessage.
-        
+
         Args:
             message: The EmailMessage to send.
-            
+
         Returns:
             EmailResult from the mail client.
         """
         try:
             result = await self.mail_client.send_message(message)
             if result.success:
-                logger.info(f"Background message sent successfully: {result.message_id}")
+                logger.info(
+                    f"Background message sent successfully: {result.message_id}"
+                )
             else:
                 logger.error(f"Background message failed: {result.error}")
             return result
         except Exception as e:
             logger.error(f"Background message task error: {e}")
             raise
-    
+
     async def _send_template_email_task(
         self,
         to: Union[str, List[str]],
@@ -250,10 +261,10 @@ class MailTaskManager:
         template_name: str,
         context: Optional[Dict[str, Any]] = None,
         from_email: Optional[str] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> EmailResult:
         """Background task for sending template emails.
-        
+
         Args:
             to: Recipient email address(es).
             subject: Email subject.
@@ -261,7 +272,7 @@ class MailTaskManager:
             context: Template context variables.
             from_email: Sender email address.
             **kwargs: Additional email parameters.
-            
+
         Returns:
             EmailResult from the mail client.
         """
@@ -272,10 +283,12 @@ class MailTaskManager:
                 template_name=template_name,
                 context=context,
                 from_email=from_email,
-                **kwargs
+                **kwargs,
             )
             if result.success:
-                logger.info(f"Background template email sent successfully: {result.message_id}")
+                logger.info(
+                    f"Background template email sent successfully: {result.message_id}"
+                )
             else:
                 logger.error(f"Background template email failed: {result.error}")
             return result
@@ -287,44 +300,40 @@ class MailTaskManager:
 # Add task manager to mail client
 def add_task_support(mail_client: MailClient) -> MailTaskManager:
     """Add background task support to a mail client.
-    
+
     Args:
         mail_client: The mail client to extend.
-        
+
     Returns:
         MailTaskManager instance.
     """
     task_manager = MailTaskManager(mail_client)
-    mail_client.tasks = task_manager
+    mail_client.tasks = task_manager  # ty:ignore[unresolved-attribute]
     return task_manager
 
 
 # Convenience functions for background email sending
 async def send_email_async(
-    request: Request,
-    to: Union[str, List[str]],
-    subject: str,
-    **kwargs: Any
+    request: Request, to: Union[str, List[str]], subject: str, **kwargs: Any
 ) -> Optional[Task]:
     """Send an email in the background from a request context.
-    
+
     Args:
         request: The current request object.
         to: Recipient email address(es).
         subject: Email subject.
         **kwargs: Additional email parameters.
-        
+
     Returns:
         Task instance if tasks are available, None otherwise.
     """
-    from . import get_mail_from_request
-    
+
     mail_client = get_mail_from_request(request)
-    
-    if not hasattr(mail_client, 'tasks'):
+
+    if not hasattr(mail_client, "tasks"):
         add_task_support(mail_client)
-    
-    return await mail_client.tasks.send_email_async(to=to, subject=subject, **kwargs)
+
+    return await mail_client.tasks.send_email_async(to=to, subject=subject, **kwargs)  # ty:ignore[unresolved-attribute]
 
 
 async def send_template_email_async(
@@ -333,10 +342,10 @@ async def send_template_email_async(
     subject: str,
     template_name: str,
     context: Optional[Dict[str, Any]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Optional[Task]:
     """Send a template email in the background from a request context.
-    
+
     Args:
         request: The current request object.
         to: Recipient email address(es).
@@ -344,21 +353,16 @@ async def send_template_email_async(
         template_name: Name of the template to use.
         context: Template context variables.
         **kwargs: Additional email parameters.
-        
+
     Returns:
         Task instance if tasks are available, None otherwise.
     """
-    from . import get_mail_from_request
-    
+
     mail_client = get_mail_from_request(request)
-    
-    if not hasattr(mail_client, 'tasks'):
+
+    if not hasattr(mail_client, "tasks"):
         add_task_support(mail_client)
-    
-    return await mail_client.tasks.send_template_email_async(
-        to=to,
-        subject=subject,
-        template_name=template_name,
-        context=context,
-        **kwargs
+
+    return await mail_client.tasks.send_template_email_async(  # ty:ignore[unresolved-attribute]
+        to=to, subject=subject, template_name=template_name, context=context, **kwargs
     )

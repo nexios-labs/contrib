@@ -5,6 +5,7 @@ Tests for ETag helper functions.
 import typing
 
 from nexios.http import Request, Response
+
 from nexios_contrib.etag import (
     compute_and_set_etag,
     etag_matches,
@@ -36,7 +37,7 @@ def create_mock_scope(
     method: str = "GET",
     path: str = "/",
     headers: typing.Optional[typing.Dict[str, str]] = None,
-    query_string: bytes = b""
+    query_string: bytes = b"",
 ) -> Scope:
     """Create a mock ASGI scope for testing."""
     return {
@@ -45,7 +46,9 @@ def create_mock_scope(
         "path": path,
         "raw_path": path.encode("utf-8"),
         "query_string": query_string,
-        "headers": [(k.lower().encode(), v.encode()) for k, v in (headers or {}).items()],
+        "headers": [
+            (k.lower().encode(), v.encode()) for k, v in (headers or {}).items()
+        ],
         "server": ("testserver", 80),
         "client": ("testclient", 12345),
         "scheme": "http",
@@ -73,7 +76,7 @@ class TestGenerateEtagFromBytes:
         """Test generating strong ETag."""
         data = b"Hello, World!"
         etag = generate_etag_from_bytes(data, weak=False)
-        assert not etag.startswith('W/')
+        assert not etag.startswith("W/")
         assert etag.endswith('"')
         # Should be consistent for same input
         etag2 = generate_etag_from_bytes(data, weak=False)
@@ -95,7 +98,7 @@ class TestGenerateEtagFromBytes:
 
     def test_generate_etag_from_bytes_unicode(self):
         """Test generating ETag from unicode data."""
-        data = "Hello, 世界!".encode('utf-8')
+        data = "Hello, 世界!".encode("utf-8")
         etag = generate_etag_from_bytes(data)
         assert etag.startswith('W/"')
         assert etag.endswith('"')
@@ -133,8 +136,6 @@ class TestNormalizeEtag:
         etag = '  "abc123"  '
         normalized = normalize_etag(etag)
         assert normalized == '"abc123"'
-
-    
 
 
 class TestSetResponseEtag:
@@ -205,7 +206,7 @@ class TestComputeAndSetEtag:
         request = Request(scope, mock_receive, mock_send)
         response = Response(request).empty()
         etag = compute_and_set_etag(response, body=b"Hello, World!", weak=False)
-        assert not etag.startswith('W/')
+        assert not etag.startswith("W/")
         assert response.headers.get("etag") == etag
 
 
@@ -247,7 +248,6 @@ class TestParseIfNoneMatch:
         etags = parse_if_none_match(request)
         assert etags == []
 
-   
 
 class TestParseIfMatch:
     """Test parse_if_match function."""
@@ -273,8 +273,6 @@ class TestParseIfMatch:
         etags = parse_if_match(request)
         assert etags == []
 
-  
-
 
 class TestEtagMatches:
     """Test etag_matches function."""
@@ -298,8 +296,12 @@ class TestEtagMatches:
 
     def test_etag_matches_multiple_candidates(self):
         """Test matching against multiple candidates."""
-        assert etag_matches('"abc123"', ['"def456"', '"abc123"', '"ghi789"'], weak_compare=False)
-        assert not etag_matches('"abc123"', ['"def456"', '"xyz123"'], weak_compare=False)
+        assert etag_matches(
+            '"abc123"', ['"def456"', '"abc123"', '"ghi789"'], weak_compare=False
+        )
+        assert not etag_matches(
+            '"abc123"', ['"def456"', '"xyz123"'], weak_compare=False
+        )
 
     def test_etag_matches_invalid_etag(self):
         """Test matching with invalid ETag."""

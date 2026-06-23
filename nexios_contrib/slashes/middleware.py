@@ -4,24 +4,26 @@ URL normalization middleware for Nexios.
 This middleware cleans up URLs by handling trailing slashes, double slashes,
 and other common URL normalization issues.
 """
+
 from __future__ import annotations
 
 from enum import Enum
 from typing import Any
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlunparse
 
 from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
-from .helpers import is_double_slash
+
 
 
 class SlashAction(Enum):
     """Actions for handling trailing slashes."""
-    ADD = "add"           # Add trailing slash if missing
-    REMOVE = "remove"     # Remove trailing slash if present
-    REDIRECT_ADD = "redirect_add"      # Redirect to add trailing slash
+
+    ADD = "add"  # Add trailing slash if missing
+    REMOVE = "remove"  # Remove trailing slash if present
+    REDIRECT_ADD = "redirect_add"  # Redirect to add trailing slash
     REDIRECT_REMOVE = "redirect_remove"  # Redirect to remove trailing slash
-    IGNORE = "ignore"     # Leave as-is
+    IGNORE = "ignore"  # Leave as-is
 
 
 class SlashesMiddleware(BaseMiddleware):
@@ -51,7 +53,6 @@ class SlashesMiddleware(BaseMiddleware):
 
     def _normalize_path(self, path: str) -> str:
         """Normalize a path by removing double slashes."""
-        
 
         # Remove double slashes
         while "//" in path:
@@ -108,7 +109,6 @@ class SlashesMiddleware(BaseMiddleware):
                 # Update the request path
                 request.scope["path"] = normalized_path
 
-
         elif self.slash_action == SlashAction.ADD:
             # Add trailing slash
             if not self._has_trailing_slash(normalized_path):
@@ -121,7 +121,10 @@ class SlashesMiddleware(BaseMiddleware):
                 new_path = self._remove_trailing_slash(normalized_path)
                 request.scope["path"] = new_path
 
-        elif self.slash_action in [SlashAction.REDIRECT_ADD, SlashAction.REDIRECT_REMOVE]:
+        elif self.slash_action in [
+            SlashAction.REDIRECT_ADD,
+            SlashAction.REDIRECT_REMOVE,
+        ]:
             # Handle redirects
             should_redirect = False
             redirect_path = normalized_path
@@ -135,20 +138,23 @@ class SlashesMiddleware(BaseMiddleware):
                 if self._has_trailing_slash(normalized_path):
                     redirect_path = self._remove_trailing_slash(normalized_path)
                     should_redirect = True
-            
+
             if should_redirect:
                 # Build the redirect URL
-                redirect_url = urlunparse((
-                    request.url.scheme,
-                    request.url.netloc,
-                    redirect_path,
-                    request.path_params,
-                    request.url.query,
-                    request.url.fragment
-                ))
+                redirect_url = urlunparse(
+                    (
+                        request.url.scheme,
+                        request.url.netloc,
+                        redirect_path,
+                        request.path_params,
+                        request.url.query,
+                        request.url.fragment,
+                    )
+                )
 
                 # Return redirect response
-                return response.redirect(redirect_url, status_code=self.redirect_status_code)
-            
+                return response.redirect(
+                    redirect_url, status_code=self.redirect_status_code
+                )
 
         await call_next()

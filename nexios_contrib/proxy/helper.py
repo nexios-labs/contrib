@@ -4,11 +4,11 @@ Proxy helper functions for Nexios.
 This module provides utilities for handling proxy headers and managing
 applications behind proxy servers.
 """
+
 from __future__ import annotations
 
 import ipaddress
-from typing import List, Optional, Union
-from urllib.parse import urlparse
+from typing import List, Optional
 
 from nexios.http import Request
 
@@ -28,7 +28,7 @@ def parse_forwarded_header(forwarded_header: str) -> dict:
         return result
 
     # Split by comma and semicolon
-    for forwarded in forwarded_header.split(','):
+    for forwarded in forwarded_header.split(","):
         forwarded = forwarded.strip()
         if not forwarded:
             continue
@@ -41,10 +41,10 @@ def parse_forwarded_header(forwarded_header: str) -> dict:
         while i < len(forwarded):
             char = forwarded[i]
 
-            if char == '=':
+            if char == "=":
                 current_param = current_value.strip()
                 current_value = ""
-            elif char == ';':
+            elif char == ";":
                 if current_param:
                     params[current_param] = current_value.strip()
                 current_param = ""
@@ -59,14 +59,14 @@ def parse_forwarded_header(forwarded_header: str) -> dict:
 
         # Process standard forwarded parameters
         for key, value in params.items():
-            if key.lower() == 'for':
-                result['for'] = value
-            elif key.lower() == 'by':
-                result['by'] = value
-            elif key.lower() == 'host':
-                result['host'] = value
-            elif key.lower() == 'proto':
-                result['proto'] = value
+            if key.lower() == "for":
+                result["for"] = value
+            elif key.lower() == "by":
+                result["by"] = value
+            elif key.lower() == "host":
+                result["host"] = value
+            elif key.lower() == "proto":
+                result["proto"] = value
 
     return result
 
@@ -84,7 +84,7 @@ def parse_x_forwarded_for(x_forwarded_for: str) -> List[str]:
     if not x_forwarded_for:
         return []
 
-    return [ip.strip() for ip in x_forwarded_for.split(',') if ip.strip()]
+    return [ip.strip() for ip in x_forwarded_for.split(",") if ip.strip()]
 
 
 def parse_x_forwarded_proto(x_forwarded_proto: str) -> Optional[str]:
@@ -101,7 +101,7 @@ def parse_x_forwarded_proto(x_forwarded_proto: str) -> Optional[str]:
         return None
 
     proto = x_forwarded_proto.strip().lower()
-    return proto if proto in ['http', 'https'] else None
+    return proto if proto in ["http", "https"] else None
 
 
 def parse_x_forwarded_host(x_forwarded_host: str) -> Optional[str]:
@@ -143,7 +143,9 @@ def parse_x_forwarded_port(x_forwarded_port: str) -> Optional[int]:
     return None
 
 
-def get_client_ip_from_headers(request: Request, trusted_proxies: List[str] = None) -> Optional[str]:
+def get_client_ip_from_headers(
+    request: Request, trusted_proxies: List[str] = None
+) -> Optional[str]:
     """
     Extract the real client IP from proxy headers.
 
@@ -157,7 +159,7 @@ def get_client_ip_from_headers(request: Request, trusted_proxies: List[str] = No
     trusted_proxies = trusted_proxies or []
 
     # Try X-Forwarded-For first
-    x_forwarded_for = request.headers.get('X-Forwarded-For')
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
     if x_forwarded_for:
         forwarded_ips = parse_x_forwarded_for(x_forwarded_for)
         if forwarded_ips:
@@ -167,16 +169,16 @@ def get_client_ip_from_headers(request: Request, trusted_proxies: List[str] = No
                     return ip
 
     # Try Forwarded header
-    forwarded = request.headers.get('Forwarded')
+    forwarded = request.headers.get("Forwarded")
     if forwarded:
         parsed = parse_forwarded_header(forwarded)
-        if 'for' in parsed:
-            for_value = parsed['for']
+        if "for" in parsed:
+            for_value = parsed["for"]
             if for_value not in trusted_proxies:
                 return for_value
 
     # Fall back to direct client IP
-    return getattr(request, 'client_ip', None)
+    return getattr(request, "client_ip", None)
 
 
 def get_protocol_from_headers(request: Request) -> str:
@@ -190,19 +192,23 @@ def get_protocol_from_headers(request: Request) -> str:
         str: The protocol (http/https).
     """
     # Check X-Forwarded-Proto first
-    proto = parse_x_forwarded_proto(request.headers.get('X-Forwarded-Proto'))
+    proto = parse_x_forwarded_proto(request.headers.get("X-Forwarded-Proto",""))
     if proto:
         return proto
 
     # Check Forwarded header
-    forwarded = request.headers.get('Forwarded')
+    forwarded = request.headers.get("Forwarded")
     if forwarded:
         parsed = parse_forwarded_header(forwarded)
-        if 'proto' in parsed:
-            return parsed['proto']
+        if "proto" in parsed:
+            return parsed["proto"]
 
     # Fall back to request URL scheme
-    return getattr(request, 'url', '').split('://')[0] if getattr(request, 'url', '') else 'http'
+    return (
+        getattr(request, "url", "").split("://")[0]
+        if getattr(request, "url", "")
+        else "http"
+    )
 
 
 def get_host_from_headers(request: Request) -> Optional[str]:
@@ -216,19 +222,19 @@ def get_host_from_headers(request: Request) -> Optional[str]:
         Optional[str]: The real host.
     """
     # Check X-Forwarded-Host first
-    host = parse_x_forwarded_host(request.headers.get('X-Forwarded-Host'))
+    host = parse_x_forwarded_host(request.headers.get("X-Forwarded-Host",""))
     if host:
         return host
 
     # Check Forwarded header
-    forwarded = request.headers.get('Forwarded')
+    forwarded = request.headers.get("Forwarded")
     if forwarded:
         parsed = parse_forwarded_header(forwarded)
-        if 'host' in parsed:
-            return parsed['host']
+        if "host" in parsed:
+            return parsed["host"]
 
     # Fall back to request host
-    return getattr(request, 'host', None)
+    return getattr(request, "host", None)
 
 
 def is_trusted_proxy(client_ip: str, trusted_proxies: List[str]) -> bool:
@@ -249,7 +255,7 @@ def is_trusted_proxy(client_ip: str, trusted_proxies: List[str]) -> bool:
 
     for proxy in trusted_proxies:
         try:
-            if '/' in proxy:
+            if "/" in proxy:
                 # CIDR notation
                 network = ipaddress.ip_network(proxy, strict=False)
                 if client_addr in network:
@@ -275,30 +281,31 @@ def validate_proxy_headers(request: Request, trusted_proxies: List[str] = None) 
     Returns:
         dict: Validated proxy information.
     """
-    client_ip = getattr(request, 'client_ip', None)
+    client_ip = getattr(request, "client_ip", None)
 
     # Only process proxy headers if client is from trusted proxy
     if client_ip and trusted_proxies and is_trusted_proxy(client_ip, trusted_proxies):
         return {
-            'client_ip': get_client_ip_from_headers(request, trusted_proxies),
-            'protocol': get_protocol_from_headers(request),
-            'host': get_host_from_headers(request),
-            'trusted_proxy': True
+            "client_ip": get_client_ip_from_headers(request, trusted_proxies),
+            "protocol": get_protocol_from_headers(request),
+            "host": get_host_from_headers(request),
+            "trusted_proxy": True,
         }
 
     return {
-        'client_ip': client_ip,
-        'protocol': getattr(request, 'url', '').split('://')[0] if getattr(request, 'url', '') else 'http',
-        'host': getattr(request, 'host', None),
-        'trusted_proxy': False
+        "client_ip": client_ip,
+        "protocol": (
+            getattr(request, "url", "").split("://")[0]
+            if getattr(request, "url", "")
+            else "http"
+        ),
+        "host": getattr(request, "host", None),
+        "trusted_proxy": False,
     }
 
 
 def build_forwarded_header(
-    client_ip: str,
-    protocol: str = None,
-    host: str = None,
-    by: str = None
+    client_ip: str, protocol: str = None, host: str = None, by: str = None
 ) -> str:
     """
     Build a Forwarded header according to RFC 7239.

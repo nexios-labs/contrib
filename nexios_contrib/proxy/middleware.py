@@ -4,6 +4,7 @@ Proxy middleware for Nexios.
 This middleware handles applications running behind proxy servers by properly
 processing X-Forwarded-* headers and managing proxy-related security.
 """
+
 from __future__ import annotations
 
 from typing import Any, List, Optional
@@ -12,13 +13,10 @@ from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
 
 from .helper import (
-    get_client_ip_from_headers,
-    get_protocol_from_headers,
-    get_host_from_headers,
     is_trusted_proxy,
-    validate_proxy_headers,
-    parse_x_forwarded_for,
     parse_forwarded_header,
+    parse_x_forwarded_for,
+    validate_proxy_headers,
 )
 
 
@@ -90,40 +88,51 @@ class ProxyMiddleware(BaseMiddleware):
         Returns:
             Any: The result from the next middleware or handler.
         """
-        original_client_ip = getattr(request, 'client_ip', None)
-        original_host = getattr(request, 'host', None)
-        original_url = getattr(request, 'url', '')
+        original_client_ip = getattr(request, "client_ip", None)
+        original_host = getattr(request, "host", None)
+        original_url = getattr(request, "url", "")
 
         # Validate proxy headers and extract real client information
         proxy_info = validate_proxy_headers(request, self.trusted_proxies)
 
         # Update request with real client IP if from trusted proxy
-        if proxy_info['trusted_proxy'] and proxy_info['client_ip']:
-            setattr(request, 'client_ip', proxy_info['client_ip'])
+        if proxy_info["trusted_proxy"] and proxy_info["client_ip"]:
+            setattr(request, "client_ip", proxy_info["client_ip"])
 
         # Update request URL scheme if protocol changed
-        if proxy_info['protocol'] and proxy_info['protocol'] != original_url.split('://')[0]:
+        if (
+            proxy_info["protocol"]
+            and proxy_info["protocol"] != original_url.split("://")[0]
+        ):
             if original_url:
                 # Reconstruct URL with correct scheme
-                new_scheme = proxy_info['protocol']
-                rest_of_url = original_url.split('://', 1)[1] if '://' in original_url else original_url
-                setattr(request, 'url', f"{new_scheme}://{rest_of_url}")
+                new_scheme = proxy_info["protocol"]
+                rest_of_url = (
+                    original_url.split("://", 1)[1]
+                    if "://" in original_url
+                    else original_url
+                )
+                setattr(request, "url", f"{new_scheme}://{rest_of_url}")
 
         # Update host if provided and not preserving original
-        if not self.preserve_host_header and proxy_info['host']:
-            setattr(request, 'host', proxy_info['host'])
+        if not self.preserve_host_header and proxy_info["host"]:
+            setattr(request, "host", proxy_info["host"])
 
         # Store proxy information in request for later access
         if self.store_proxy_info:
-            setattr(request, 'proxy_info', proxy_info)
-            setattr(request, 'x_forwarded_for', parse_x_forwarded_for(
-                request.headers.get('X-Forwarded-For', '')
-            ))
+            setattr(request, "proxy_info", proxy_info)
+            setattr(
+                request,
+                "x_forwarded_for",
+                parse_x_forwarded_for(request.headers.get("X-Forwarded-For", "")),
+            )
 
             if self.trust_forwarded_header:
-                forwarded_data = parse_forwarded_header(request.headers.get('Forwarded', ''))
+                forwarded_data = parse_forwarded_header(
+                    request.headers.get("Forwarded", "")
+                )
                 if forwarded_data:
-                    setattr(request, 'forwarded_header', forwarded_data)
+                    setattr(request, "forwarded_header", forwarded_data)
 
         return await call_next()
 
@@ -143,9 +152,11 @@ class ProxyMiddleware(BaseMiddleware):
             Any: The response object.
         """
         # Add X-Client-IP header if we have real client IP info
-        proxy_info = getattr(request, 'proxy_info', None)
-        if proxy_info and proxy_info['client_ip'] != getattr(request, 'client_ip', None):
-            response.set_header('X-Client-IP', proxy_info['client_ip'])
+        proxy_info = getattr(request, "proxy_info", None)
+        if proxy_info and proxy_info["client_ip"] != getattr(
+            request, "client_ip", None
+        ):
+            response.set_header("X-Client-IP", proxy_info["client_ip"])
 
         return response
 
@@ -208,7 +219,7 @@ class TrustedProxyMiddleware(ProxyMiddleware):
             trusted_proxies=trusted_proxies,
             trust_forwarded_headers=True,
             trust_forwarded_header=True,
-            **kwargs
+            **kwargs,
         )
         self.require_https = require_https
         self.max_forwards = max_forwards
@@ -223,11 +234,11 @@ class TrustedProxyMiddleware(ProxyMiddleware):
         Process request with enhanced security checks.
         """
         # Check if client is from trusted proxy
-        client_ip = getattr(request, 'client_ip', None)
+        client_ip = getattr(request, "client_ip", None)
         if not client_ip or not is_trusted_proxy(client_ip, self.trusted_proxies):
             # Not from trusted proxy, don't process proxy headers
             if self.store_proxy_info:
-                setattr(request, 'proxy_info', {'trusted_proxy': False})
+                setattr(request, "proxy_info", {"trusted_proxy": False})
             return await call_next()
 
         # Process proxy headers
@@ -235,16 +246,18 @@ class TrustedProxyMiddleware(ProxyMiddleware):
 
         # Additional security checks
         if self.require_https:
-            proxy_info = getattr(request, 'proxy_info', {})
-            if proxy_info.get('protocol') != 'https':
+            proxy_info = getattr(request, "proxy_info", {})
+            if proxy_info.get("protocol") != "https":
                 # Could redirect to HTTPS or return error
-                response.status_code = 400
+                response.status(400)
                 return {"error": "HTTPS required when behind proxy"}
 
         # Check for too many forwards
-        x_forwarded_for = parse_x_forwarded_for(request.headers.get('X-Forwarded-For', ''))
+        x_forwarded_for = parse_x_forwarded_for(
+            request.headers.get("X-Forwarded-For", "")
+        )
         if len(x_forwarded_for) > self.max_forwards:
-            response.status_code = 400
+            response.status(400)
             return {"error": "Too many proxy hops"}
 
         return result

@@ -3,6 +3,7 @@ Scheduler configuration for Nexios.
 
 This module provides configuration options and enums for the scheduler system.
 """
+
 from __future__ import annotations
 
 import logging
@@ -57,12 +58,7 @@ class IntervalTrigger:
 
     def as_seconds(self) -> float:
         """Return the total interval in seconds."""
-        return (
-            self.days * 86400
-            + self.hours * 3600
-            + self.minutes * 60
-            + self.seconds
-        )
+        return self.days * 86400 + self.hours * 3600 + self.minutes * 60 + self.seconds
 
 
 @dataclass
@@ -163,8 +159,6 @@ class CronTrigger:
 
         Uses a simple minute-resolution iteration starting from ``from_timestamp``.
         """
-        import calendar
-        import time as time_module
         from datetime import datetime, timedelta, timezone
 
         dt = datetime.fromtimestamp(from_timestamp, tz=timezone.utc)

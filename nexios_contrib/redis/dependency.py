@@ -6,11 +6,12 @@ Redis client and performing Redis operations in route handlers.
 """
 
 from __future__ import annotations
+from typing import cast
 
-from nexios.dependencies import Depend, Context
+from nexios.dependencies import Depend
 
-from .client import RedisClient
 from . import get_redis
+from .client import RedisClient
 
 
 def RedisDepend() -> RedisClient:
@@ -42,4 +43,4 @@ def RedisDepend() -> RedisClient:
         ```
     """
 
-    return Depend(get_redis)
+    return cast(RedisClient,Depend(get_redis))

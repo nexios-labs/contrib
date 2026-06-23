@@ -1,12 +1,10 @@
-import json
-from typing import Optional, Any
+from typing import Any
 
 import strawberry
-from strawberry.types import ExecutionResult
-
 from nexios.application import NexiosApp
 from nexios.http import Request, Response
 from nexios.routing import Route
+from strawberry.types import ExecutionResult
 
 
 class GraphQL:
@@ -25,7 +23,7 @@ class GraphQL:
         self.schema = schema
         self.path = path
         self.graphiql = graphiql
-        
+
         self._setup()
 
     def _setup(self):
@@ -45,10 +43,14 @@ class GraphQL:
             try:
                 data = await req.json
             except Exception:
-                return res.status(400).json({"errors": [{"message": "Invalid JSON body"}]})
+                return res.status(400).json(
+                    {"errors": [{"message": "Invalid JSON body"}]}
+                )
 
             if not isinstance(data, dict):
-                 return res.status(400).json({"errors": [{"message": "JSON body must be an object"}]})
+                return res.status(400).json(
+                    {"errors": [{"message": "JSON body must be an object"}]}
+                )
 
             query = data.get("query")
             variables = data.get("variables")
@@ -68,7 +70,7 @@ class GraphQL:
                 response_data["data"] = result.data
             if result.errors:
                 response_data["errors"] = [err.formatted for err in result.errors]
-            
+
             return res.json(response_data)
 
     def _get_graphiql_html(self) -> str:

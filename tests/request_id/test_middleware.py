@@ -2,11 +2,12 @@
 Tests for RequestIdMiddleware.
 """
 
-import pytest
 import uuid
 
+import pytest
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.request_id import RequestIdMiddleware
 
 
@@ -94,7 +95,7 @@ class TestRequestIdMiddleware:
             request_ids = [
                 resp1.headers["X-Request-ID"],
                 resp2.headers["X-Request-ID"],
-                resp3.headers["X-Request-ID"]
+                resp3.headers["X-Request-ID"],
             ]
 
             # All request IDs should be unique
@@ -168,7 +169,9 @@ class TestRequestIdMiddleware:
 
         with test_client_factory(app) as client:
             custom_request_id = "550e8400-e29b-41d4-a716-446655440000"
-            resp = client.get("/test", headers={"X-Custom-Request-ID": custom_request_id})
+            resp = client.get(
+                "/test", headers={"X-Custom-Request-ID": custom_request_id}
+            )
 
             assert resp.status_code == 200
             assert resp.headers["X-Custom-Request-ID"] == custom_request_id
@@ -200,7 +203,9 @@ class TestRequestIdMiddleware:
     def test_middleware_custom_attribute_name(self, test_client_factory):
         """Test middleware with custom request attribute name."""
         app = NexiosApp()
-        app.add_middleware(RequestIdMiddleware(request_attribute_name="custom_request_id"))
+        app.add_middleware(
+            RequestIdMiddleware(request_attribute_name="custom_request_id")
+        )
 
         @app.get("/test")
         async def handler(request, response):

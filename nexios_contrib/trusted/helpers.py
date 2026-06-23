@@ -1,6 +1,7 @@
 """
 Helper functions for trusted host validation.
 """
+
 from __future__ import annotations
 
 from typing import List, Optional, Set
@@ -45,9 +46,7 @@ def matches_wildcard_pattern(host: str, pattern: str) -> bool:
 
 
 def validate_host_against_patterns(
-    host: str,
-    allowed_patterns: List[str],
-    allowed_ports: Optional[Set[int]] = None
+    host: str, allowed_patterns: List[str], allowed_ports: Optional[Set[int]] = None
 ) -> bool:
     """
     Validate a host against a list of allowed patterns.

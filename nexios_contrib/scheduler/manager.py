@@ -4,6 +4,7 @@ Scheduler manager for Nexios.
 This module provides the SchedulerManager class which is responsible for
 managing scheduled jobs and their execution lifecycle in a Nexios application.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -131,9 +132,10 @@ class SchedulerManager:
             name=name,
             args=args or (),
             kwargs=kwargs or {},
-            max_instances=max_instances or self.config.job_defaults.get("max_instances", 3),
+            max_instances=max_instances
+            or self.config.job_defaults.get("max_instances", 3),
             misfire_grace_time=misfire_grace_time
-                or self.config.job_defaults.get("misfire_grace_time", 30),
+            or self.config.job_defaults.get("misfire_grace_time", 30),
             coalesce=coalesce or self.config.job_defaults.get("coalesce", True),
             id=id,
         )
@@ -205,9 +207,7 @@ class SchedulerManager:
 
     @property
     def _active_count(self) -> int:
-        return sum(
-            1 for j in self._jobs.values() if j.status == JobStatus.ACTIVE
-        )
+        return sum(1 for j in self._jobs.values() if j.status == JobStatus.ACTIVE)
 
     async def _ticker_loop(self) -> None:
         """Background loop that checks every second for due jobs."""

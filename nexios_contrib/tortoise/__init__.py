@@ -4,10 +4,11 @@ Nexios-Tortoise - Tortoise ORM integration for Nexios web framework.
 This module provides Tortoise ORM initialization, connection management,
 and exception handling for Nexios applications.
 """
+
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from nexios import NexiosApp
 
@@ -15,18 +16,12 @@ from .client import TortoiseClient, TortoiseConnectionError
 from .config import TortoiseConfig
 from .exceptions import handle_tortoise_exceptions
 
-
 __version__ = "0.1.0"
 
 # Global Tortoise client instance
 _tortoise_client: Optional[TortoiseClient] = None
 
 logger = logging.getLogger("nexios.tortoise")
-
-
-class TortoiseConnectionError(Exception):
-    """Raised when there's an error connecting to the database."""
-    pass
 
 
 def init_tortoise(
@@ -82,7 +77,7 @@ def init_tortoise(
         db_url=db_url,
         modules=modules or {"models": []},
         generate_schemas=generate_schemas,
-        **kwargs
+        **kwargs,
     )
 
     _tortoise_client = TortoiseClient(config)
@@ -144,5 +139,7 @@ def get_tortoise_client() -> TortoiseClient:
     """
     global _tortoise_client
     if _tortoise_client is None:
-        raise TortoiseConnectionError("Tortoise ORM client not initialized. Call init_tortoise() first.")
+        raise TortoiseConnectionError(
+            "Tortoise ORM client not initialized. Call init_tortoise() first."
+        )
     return _tortoise_client

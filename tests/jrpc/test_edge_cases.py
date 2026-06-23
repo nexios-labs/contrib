@@ -6,9 +6,9 @@ import json
 from typing import Any, Dict
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.jrpc import JsonRpcPlugin, JsonRpcRegistry
 
 
@@ -26,7 +26,7 @@ class TestJRPEdgeCases:
             "jsonrpc": "2.0",
             "method": "echo",
             "params": {"value": "test"},
-            "id": 999999999999999999999999999999999999999999999999999999999999999999
+            "id": 999999999999999999999999999999999999999999999999999999999999999999,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -34,7 +34,10 @@ class TestJRPEdgeCases:
 
         result = response.json()
         assert result["result"] == "test"
-        assert result["id"] == 999999999999999999999999999999999999999999999999999999999999999999
+        assert (
+            result["id"]
+            == 999999999999999999999999999999999999999999999999999999999999999999
+        )
 
     def test_string_request_id(self, jrpc_app, jrpc_client, registry):
         """Test with string request ID."""
@@ -47,7 +50,7 @@ class TestJRPEdgeCases:
             "jsonrpc": "2.0",
             "method": "echo",
             "params": {"value": "test"},
-            "id": "unique-request-id-123"
+            "id": "unique-request-id-123",
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -68,7 +71,7 @@ class TestJRPEdgeCases:
             "jsonrpc": "2.0",
             "method": "echo",
             "params": {"value": "test"},
-            "id": None
+            "id": None,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -78,29 +81,19 @@ class TestJRPEdgeCases:
         assert result["result"] == "test"
         assert result["id"] is None
 
-   
-
-        
-    
-
-   
     def test_method_with_mixed_param_types(self, jrpc_app, jrpc_client, registry):
         """Test method with mixed parameter types."""
 
         @registry.register()
         def mixed_params(
-            number: int,
-            text: str,
-            flag: bool,
-            numbers: list,
-            config: dict
+            number: int, text: str, flag: bool, numbers: list, config: dict
         ) -> dict:
             return {
                 "number": number,
                 "text": text,
                 "flag": flag,
                 "sum": sum(numbers),
-                "config_keys": list(config.keys())
+                "config_keys": list(config.keys()),
             }
 
         payload = {
@@ -111,9 +104,9 @@ class TestJRPEdgeCases:
                 "text": "test",
                 "flag": True,
                 "numbers": [1, 2, 3],
-                "config": {"host": "localhost", "port": 8080}
+                "config": {"host": "localhost", "port": 8080},
             },
-            "id": 1
+            "id": 1,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -140,7 +133,7 @@ class TestJRPEdgeCases:
                 "jsonrpc": "2.0",
                 "method": "increment",
                 "params": {"counter": i},
-                "id": i
+                "id": i,
             }
 
             response = jrpc_client.post("/rpc", json=payload)
@@ -151,7 +144,9 @@ class TestJRPEdgeCases:
         expected = list(range(1, 11))
         assert results == expected
 
-    def test_method_with_special_characters_in_name(self, jrpc_app, jrpc_client, registry):
+    def test_method_with_special_characters_in_name(
+        self, jrpc_app, jrpc_client, registry
+    ):
         """Test method with special characters in name."""
 
         @registry.register("method_with_special-chars.test")
@@ -162,7 +157,7 @@ class TestJRPEdgeCases:
             "jsonrpc": "2.0",
             "method": "method_with_special-chars.test",
             "params": {"value": "test"},
-            "id": 1
+            "id": 1,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -172,12 +167,7 @@ class TestJRPEdgeCases:
     def test_empty_method_name(self, jrpc_app, jrpc_client):
         """Test empty method name error."""
 
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "",
-            "params": {},
-            "id": 1
-        }
+        payload = {"jsonrpc": "2.0", "method": "", "params": {}, "id": 1}
 
         response = jrpc_client.post("/rpc", json=payload)
         assert response.status_code == 200
@@ -198,7 +188,7 @@ class TestJRPEdgeCases:
             "jsonrpc": "2.0",
             "method": "method_with_spaces",
             "params": {},
-            "id": 1
+            "id": 1,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -214,12 +204,7 @@ class TestJRPEdgeCases:
         def very_long_name_method() -> str:
             return "success"
 
-        payload = {
-            "jsonrpc": "2.0",
-            "method": long_name,
-            "params": {},
-            "id": 1
-        }
+        payload = {"jsonrpc": "2.0", "method": long_name, "params": {}, "id": 1}
 
         response = jrpc_client.post("/rpc", json=payload)
         assert response.status_code == 200
@@ -236,7 +221,7 @@ class TestJRPEdgeCases:
             "jsonrpc": "2.0",
             "method": "generate_large_data",
             "params": {"size": 1000},
-            "id": 1
+            "id": 1,
         }
 
         response = jrpc_client.post("/rpc", json=payload)

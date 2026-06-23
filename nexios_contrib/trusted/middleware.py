@@ -4,6 +4,7 @@ Trusted host middleware for Nexios.
 This middleware validates the Host header to ensure requests are coming from
 trusted hosts/domains. This is a security feature to prevent Host header attacks.
 """
+
 from __future__ import annotations
 
 from typing import Any, List, Optional, Set
@@ -94,13 +95,15 @@ class TrustedHostMiddleware(BaseMiddleware):
 
         # Check if host is allowed
         if not self._is_host_allowed(host):
-            return response.json({"error": f"Host '{host}' is not allowed"}, status_code=400)
+            return response.json(
+                {"error": f"Host '{host}' is not allowed"}, status_code=400
+            )
 
         # Handle www redirect if enabled
         if self.www_redirect and host.startswith("www."):
             www_prefix = "www."
             if host.startswith(www_prefix):
-                clean_host = host[len(www_prefix):]
+                clean_host = host[len(www_prefix) :]
                 # Check if the clean host is allowed
                 if self._is_host_allowed(clean_host):
                     # In a real implementation, you'd redirect here

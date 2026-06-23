@@ -4,7 +4,9 @@ Timeout helper functions for Nexios.
 This module provides utilities for timeout handling and request timing
 for Nexios applications.
 """
+
 from __future__ import annotations
+from nexios.http.response import JSONResponse, BaseResponse
 
 import asyncio
 import time
@@ -53,6 +55,7 @@ def timeout_after(
         async def slow_operation():
             await asyncio.sleep(60)  # This will timeout after 30 seconds
     """
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             if timeout <= 0:
@@ -64,7 +67,9 @@ def timeout_after(
                 if exception:
                     raise exception
                 raise TimeoutException(timeout)
+
         return wrapper
+
     return decorator
 
 
@@ -112,8 +117,8 @@ def get_request_duration(request: Request) -> float:
     Returns:
         Duration of the request in seconds, or 0 if not available.
     """
-    if hasattr(request, 'start_time'):
-        return time.time() - request.start_time
+    if hasattr(request, "start_time"):
+        return time.time() - int(str(request.start_time))
     return 0.0
 
 
@@ -124,7 +129,7 @@ def set_request_start_time(request: Request) -> None:
     Args:
         request: The HTTP request object to set the start time for.
     """
-    request.start_time = time.time()
+    request.start_time = time.time()  # ty:ignore[unresolved-attribute]
 
 
 def get_request_start_time(request: Request) -> Optional[float]:
@@ -140,10 +145,7 @@ def get_request_start_time(request: Request) -> Optional[float]:
     return getattr(request, "start_time", None)
 
 
-def get_timeout_from_request(
-    request: Request,
-    default_timeout: float = 30.0
-) -> float:
+def get_timeout_from_request(request: Request, default_timeout: float = 30.0) -> float:
     """
     Extract timeout value from request headers or query parameters.
 
@@ -159,7 +161,7 @@ def get_timeout_from_request(
         Timeout duration in seconds.
     """
     # Check for timeout in headers
-    timeout_header = request.headers.get('X-Request-Timeout')
+    timeout_header = request.headers.get("X-Request-Timeout")
     if timeout_header:
         try:
             return max(0.1, float(timeout_header))
@@ -167,7 +169,7 @@ def get_timeout_from_request(
             pass
 
     # Check for timeout in query parameters
-    timeout_param = request.query_params.get('timeout')
+    timeout_param = request.query_params.get("timeout")
     if timeout_param:
         try:
             return max(0.1, float(timeout_param))
@@ -178,10 +180,9 @@ def get_timeout_from_request(
 
 
 def create_timeout_response(
-    response: Response,
     timeout: float,
     detail: Any = None,
-) -> Response:
+) -> BaseResponse:
     """
     Create a timeout error response.
 
@@ -193,10 +194,11 @@ def create_timeout_response(
     Returns:
         HTTP response indicating a timeout error.
     """
-    response.set_header("X-Timeout", str(timeout))
-    return response.json(
+    return JSONResponse(
         {"error": "Request Timeout", "timeout": timeout, "detail": detail},
         status_code=408,
+        headers={"X-Timeout": str(timeout)}
+
     )
 
 

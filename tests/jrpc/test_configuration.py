@@ -3,9 +3,9 @@ Configuration tests for JRPC plugin.
 """
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.jrpc import JsonRpcPlugin, JsonRpcRegistry
 
 
@@ -26,7 +26,7 @@ class TestJRPCConfiguration:
             "jsonrpc": "2.0",
             "method": "test_method",
             "params": {"a": 5},
-            "id": 1
+            "id": 1,
         }
 
         response = client.post("/rpc", json=payload)
@@ -47,7 +47,7 @@ class TestJRPCConfiguration:
             "jsonrpc": "2.0",
             "method": "test_method",
             "params": {"a": 4},
-            "id": 1
+            "id": 1,
         }
 
         # Should work with custom prefix
@@ -73,7 +73,7 @@ class TestJRPCConfiguration:
             "jsonrpc": "2.0",
             "method": "test_method",
             "params": {"a": 5},
-            "id": 1
+            "id": 1,
         }
 
         response = client.post("/", json=payload)
@@ -94,7 +94,7 @@ class TestJRPCConfiguration:
             "jsonrpc": "2.0",
             "method": "test_method",
             "params": {"a": 3},
-            "id": 1
+            "id": 1,
         }
 
         # Should work with nested prefix
@@ -106,7 +106,9 @@ class TestJRPCConfiguration:
         response_short = client.post("/api/rpc", json=payload)
         assert response_short.status_code == 404
 
-    def test_plugin_without_explicit_config(self, app_factory, test_client_factory, registry):
+    def test_plugin_without_explicit_config(
+        self, app_factory, test_client_factory, registry
+    ):
         """Test plugin with default configuration."""
 
         @registry.register()
@@ -122,7 +124,7 @@ class TestJRPCConfiguration:
             "jsonrpc": "2.0",
             "method": "test_method",
             "params": {"a": 5},
-            "id": 1
+            "id": 1,
         }
 
         response = client.post("/rpc", json=payload)
@@ -151,30 +153,22 @@ class TestJRPCConfiguration:
             return a + 2
 
         # Test first app
-        payload1 = {
-            "jsonrpc": "2.0",
-            "method": "method1",
-            "params": {"a": 5},
-            "id": 1
-        }
+        payload1 = {"jsonrpc": "2.0", "method": "method1", "params": {"a": 5}, "id": 1}
 
         response1 = client1.post("/api1", json=payload1)
         assert response1.status_code == 200
         assert response1.json()["result"] == 6
 
         # Test second app
-        payload2 = {
-            "jsonrpc": "2.0",
-            "method": "method2",
-            "params": {"a": 5},
-            "id": 1
-        }
+        payload2 = {"jsonrpc": "2.0", "method": "method2", "params": {"a": 5}, "id": 1}
 
         response2 = client2.post("/api2", json=payload2)
         assert response2.status_code == 200
         assert response2.json()["result"] == 7
 
-    def test_plugin_integration_with_other_routes(self, app_factory, test_client_factory, registry):
+    def test_plugin_integration_with_other_routes(
+        self, app_factory, test_client_factory, registry
+    ):
         """Test JRPC plugin alongside other routes."""
 
         app = app_factory({"path_prefix": "/jsonrpc"})
@@ -207,7 +201,7 @@ class TestJRPCConfiguration:
             "jsonrpc": "2.0",
             "method": "calculate",
             "params": {"a": 10, "b": 20},
-            "id": 1
+            "id": 1,
         }
 
         jrpc_response = client.post("/jsonrpc", json=jrpc_payload)

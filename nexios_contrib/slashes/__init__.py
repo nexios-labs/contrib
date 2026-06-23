@@ -2,7 +2,6 @@
 Nexios URL Normalization contrib package.
 """
 
-from .middleware import SlashesMiddleware, SlashAction
 from .helpers import (
     add_trailing_slash,
     clean_url_path,
@@ -14,6 +13,7 @@ from .helpers import (
     remove_trailing_slash,
     should_skip_path_processing,
 )
+from .middleware import SlashAction, SlashesMiddleware
 
 __all__ = [
     "SlashesMiddleware",
@@ -29,10 +29,11 @@ __all__ = [
     "should_skip_path_processing",
 ]
 
+
 def Slashes(
     slash_action: SlashAction = SlashAction.REDIRECT_REMOVE,
     auto_remove_double_slashes: bool = True,
-    redirect_status_code: int = 301
+    redirect_status_code: int = 301,
 ) -> SlashesMiddleware:
     """
     Create a SlashesMiddleware instance with the given configuration.
@@ -48,5 +49,5 @@ def Slashes(
     return SlashesMiddleware(
         slash_action=slash_action,
         auto_remove_double_slashes=auto_remove_double_slashes,
-        redirect_status_code=redirect_status_code
+        redirect_status_code=redirect_status_code,
     )

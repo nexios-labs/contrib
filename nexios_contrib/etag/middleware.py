@@ -5,13 +5,13 @@ This middleware computes an ETag for responses (if not already set) and
 handles conditional GET/HEAD using the If-None-Match header to return 304
 Not Modified when appropriate.
 """
+
 from __future__ import annotations
 
-from typing import Any, Iterable, Tuple
+from typing import Any, Iterable
 
 from nexios.http import Request, Response
 from nexios.middleware.base import BaseMiddleware
-from nexios.http.response import BaseResponse   
 
 from .helper import compute_and_set_etag, is_fresh
 
@@ -39,8 +39,6 @@ class ETagMiddleware(BaseMiddleware):
         self.methods = tuple(m.upper() for m in methods)
         self.override = override
 
-   
-
     async def __call__(
         self,
         request: Request,
@@ -59,12 +57,11 @@ class ETagMiddleware(BaseMiddleware):
             async for chunk in stream.content_iterator:
                 body += chunk
             compute_and_set_etag(response, body, weak=self.weak, override=True)
-        print("cnext header b4 isfresh",response.headers,has_existing)
+        print("cnext header b4 isfresh", response.headers, has_existing)
         # Handle If-None-Match freshness for conditional requests
         if is_fresh(request, response, weak_compare=True):
             # Per RFC 9110, a 304 response must not include a message body
             # Ensure body is empty; BaseResponse avoids content-length for 304
-            response.status(304)  
-        
+            response.status(304)
 
-        return stream   
+        return stream

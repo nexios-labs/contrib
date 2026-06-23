@@ -1,12 +1,13 @@
 """
 Tortoise ORM configuration for Nexios Tortoise integration.
 """
+
 from __future__ import annotations
 
 import os
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field,  field_validator
 
 
 class TortoiseConfig(BaseModel):
@@ -17,40 +18,37 @@ class TortoiseConfig(BaseModel):
     via Tortoise ORM and provides validation and sensible defaults.
     """
 
-    db_url: str = Field(
-        description="Database connection URL"
-    )
+    db_url: str = Field(description="Database connection URL")
     modules: Dict[str, List[str]] = Field(
         default_factory=lambda: {"models": []},
-        description="Dictionary mapping app names to model module paths"
+        description="Dictionary mapping app names to model module paths",
     )
     generate_schemas: bool = Field(
-        default=False,
-        description="Whether to generate database schemas on startup"
+        default=False, description="Whether to generate database schemas on startup"
     )
     use_tz: bool = Field(
-        default=False,
-        description="Whether to use timezone-aware datetime objects"
+        default=False, description="Whether to use timezone-aware datetime objects"
     )
     timezone: str = Field(
-        default="UTC",
-        description="Default timezone for datetime objects"
+        default="UTC", description="Default timezone for datetime objects"
     )
     connections: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Custom connection configurations"
+        default=None, description="Custom connection configurations"
     )
     apps: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Custom app configurations"
+        default=None, description="Custom app configurations"
     )
 
-    @validator("db_url")
+    @field_validator("db_url")
     def validate_db_url(cls, v: str) -> str:
         """Validate database URL format."""
         supported_schemes = [
-            "sqlite://", "postgres://", "postgresql://", 
-            "mysql://", "asyncpg://", "aiomysql://"
+            "sqlite://",
+            "postgres://",
+            "postgresql://",
+            "mysql://",
+            "asyncpg://",
+            "aiomysql://",
         ]
         if not any(v.startswith(scheme) for scheme in supported_schemes):
             raise ValueError(
@@ -58,20 +56,22 @@ class TortoiseConfig(BaseModel):
             )
         return v
 
-    @validator("modules")
+    @field_validator("modules")
     def validate_modules(cls, v: Dict[str, List[str]]) -> Dict[str, List[str]]:
         """Validate modules configuration."""
         if not isinstance(v, dict):
             raise ValueError("modules must be a dictionary")
-        
+
         for app_name, module_list in v.items():
             if not isinstance(module_list, list):
                 raise ValueError(f"modules['{app_name}'] must be a list of strings")
-            
+
             for module in module_list:
                 if not isinstance(module, str):
-                    raise ValueError(f"All modules in modules['{app_name}'] must be strings")
-        
+                    raise ValueError(
+                        f"All modules in modules['{app_name}'] must be strings"
+                    )
+
         return v
 
     @classmethod
@@ -96,27 +96,32 @@ class TortoiseConfig(BaseModel):
             ```
         """
         env_vars = {}
-        
+
         # Handle simple fields
         for field_name, field in cls.__fields__.items():
             if field_name in ["modules", "connections", "apps"]:
                 continue  # Skip complex fields
-                
+
             env_name = f"{prefix}{field_name.upper()}"
             env_value = os.getenv(env_name)
 
             if env_value is not None:
                 # Type conversion for specific fields
-                if field.type_ in (int, float):
+                if isinstance(field,(int, float)):
                     try:
-                        if field.type_ == int:
+                        if field.type_ is int:
                             env_vars[field_name] = int(env_value)
                         else:
                             env_vars[field_name] = float(env_value)
                     except ValueError:
                         continue  # Skip invalid values
-                elif field.type_ == bool:
-                    env_vars[field_name] = env_value.lower() in ("true", "1", "yes", "on")
+                elif isinstance(field, bool):
+                    env_vars[field_name] = env_value.lower() in (
+                        "true",
+                        "1",
+                        "yes",
+                        "on",
+                    )
                 else:
                     env_vars[field_name] = env_value
 
@@ -125,11 +130,12 @@ class TortoiseConfig(BaseModel):
         if modules_env:
             try:
                 import json
+
                 env_vars["modules"] = json.loads(modules_env)
             except (json.JSONDecodeError, ValueError):
                 pass  # Skip invalid JSON
 
-        return cls(**env_vars)
+        return cls(**env_vars)  # ty:ignore[invalid-argument-type]
 
     def to_tortoise_config(self) -> Dict[str, Any]:
         """
@@ -147,7 +153,7 @@ class TortoiseConfig(BaseModel):
 
         if self.connections:
             config["connections"] = self.connections
-        
+
         if self.apps:
             config["apps"] = self.apps
 
@@ -155,7 +161,7 @@ class TortoiseConfig(BaseModel):
 
     def __str__(self) -> str:
         """String representation of Tortoise config (without sensitive data)."""
-        safe_dict = self.dict()
+        safe_dict = self.model_dump()
         # Mask password in db_url if present
         if "://" in self.db_url and "@" in self.db_url:
             parts = self.db_url.split("://")
@@ -167,5 +173,5 @@ class TortoiseConfig(BaseModel):
                     if ":" in auth_part:
                         user, _ = auth_part.split(":", 1)
                         safe_dict["db_url"] = f"{scheme}://{user}:***@{host_part}"
-        
+
         return f"TortoiseConfig({safe_dict})"

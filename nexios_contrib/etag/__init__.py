@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from .helper import (
     compute_and_set_etag,
     etag_matches,
@@ -9,7 +11,6 @@ from .helper import (
     set_response_etag,
 )
 from .middleware import ETagMiddleware
-from typing import Iterable
 
 __all__ = [
     "ETagMiddleware",
@@ -23,5 +24,8 @@ __all__ = [
     "is_fresh",
 ]
 
-def  ETag(weak: bool = True, methods: Iterable[str] = ("GET", "HEAD"), override: bool = False) -> ETagMiddleware:
+
+def ETag(
+    weak: bool = True, methods: Iterable[str] = ("GET", "HEAD"), override: bool = False
+) -> ETagMiddleware:
     return ETagMiddleware(weak=weak, methods=methods, override=override)

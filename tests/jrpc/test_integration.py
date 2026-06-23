@@ -3,12 +3,12 @@ Integration tests for JRPC server using Nexios TestClient.
 """
 
 import json
-from typing import Dict, Any
+from typing import Any, Dict
 
 import pytest
-
 from nexios import NexiosApp
 from nexios.testclient import TestClient
+
 from nexios_contrib.jrpc import JsonRpcPlugin, JsonRpcRegistry, get_registry
 
 
@@ -27,7 +27,7 @@ class TestJRPCIntegration:
             "jsonrpc": "2.0",
             "method": "add",
             "params": {"a": 5, "b": 3},
-            "id": 1
+            "id": 1,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -45,12 +45,7 @@ class TestJRPCIntegration:
         def multiply(a: int, b: int) -> int:
             return a * b
 
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "multiply",
-            "params": [4, 7],
-            "id": 2
-        }
+        payload = {"jsonrpc": "2.0", "method": "multiply", "params": [4, 7], "id": 2}
 
         response = jrpc_client.post("/rpc", json=payload)
         assert response.status_code == 200
@@ -70,7 +65,7 @@ class TestJRPCIntegration:
             "jsonrpc": "2.0",
             "method": "async_add",
             "params": {"a": 10, "b": 5},
-            "id": 3
+            "id": 3,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -96,7 +91,7 @@ class TestJRPCIntegration:
             "jsonrpc": "2.0",
             "method": "subtract",
             "params": {"a": 10, "b": 3},
-            "id": 4
+            "id": 4,
         }
 
         response1 = jrpc_client.post("/rpc", json=payload1)
@@ -108,7 +103,7 @@ class TestJRPCIntegration:
             "jsonrpc": "2.0",
             "method": "divide",
             "params": {"a": 15.0, "b": 3.0},
-            "id": 5
+            "id": 5,
         }
 
         response2 = jrpc_client.post("/rpc", json=payload2)
@@ -127,7 +122,7 @@ class TestJRPCIntegration:
             "jsonrpc": "2.0",
             "method": "greet",
             "params": {"name": "Alice"},
-            "id": 6
+            "id": 6,
         }
 
         response1 = jrpc_client.post("/rpc", json=payload1)
@@ -139,7 +134,7 @@ class TestJRPCIntegration:
             "jsonrpc": "2.0",
             "method": "greet",
             "params": {"name": "Bob", "greeting": "Hi"},
-            "id": 7
+            "id": 7,
         }
 
         response2 = jrpc_client.post("/rpc", json=payload2)
@@ -153,18 +148,12 @@ class TestJRPCIntegration:
         def get_time() -> str:
             return "2023-01-01"
 
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "get_time",
-            "params": {},
-            "id": 8
-        }
+        payload = {"jsonrpc": "2.0", "method": "get_time", "params": {}, "id": 8}
 
         response = jrpc_client.post("/rpc", json=payload)
         assert response.status_code == 200
         assert response.json()["result"] == "2023-01-01"
 
-    
     def test_custom_method_name(self, jrpc_app, jrpc_client, registry):
         """Test method registration with custom name."""
 
@@ -176,7 +165,7 @@ class TestJRPCIntegration:
             "jsonrpc": "2.0",
             "method": "custom_sum",
             "params": {"a": 7, "b": 8},
-            "id": 9
+            "id": 9,
         }
 
         response = jrpc_client.post("/rpc", json=payload)
@@ -207,41 +196,31 @@ class TestJRPCIntegration:
             return {"key": "value", "number": 123}
 
         # Test string
-        response1 = jrpc_client.post("/rpc", json={
-            "jsonrpc": "2.0",
-            "method": "get_string",
-            "id": 10
-        })
+        response1 = jrpc_client.post(
+            "/rpc", json={"jsonrpc": "2.0", "method": "get_string", "id": 10}
+        )
         assert response1.json()["result"] == "test string"
 
         # Test number
-        response2 = jrpc_client.post("/rpc", json={
-            "jsonrpc": "2.0",
-            "method": "get_number",
-            "id": 11
-        })
+        response2 = jrpc_client.post(
+            "/rpc", json={"jsonrpc": "2.0", "method": "get_number", "id": 11}
+        )
         assert response2.json()["result"] == 42
 
         # Test boolean
-        response3 = jrpc_client.post("/rpc", json={
-            "jsonrpc": "2.0",
-            "method": "get_boolean",
-            "id": 12
-        })
+        response3 = jrpc_client.post(
+            "/rpc", json={"jsonrpc": "2.0", "method": "get_boolean", "id": 12}
+        )
         assert response3.json()["result"] is True
 
         # Test list
-        response4 = jrpc_client.post("/rpc", json={
-            "jsonrpc": "2.0",
-            "method": "get_list",
-            "id": 13
-        })
+        response4 = jrpc_client.post(
+            "/rpc", json={"jsonrpc": "2.0", "method": "get_list", "id": 13}
+        )
         assert response4.json()["result"] == [1, 2, 3, 4, 5]
 
         # Test dict
-        response5 = jrpc_client.post("/rpc", json={
-            "jsonrpc": "2.0",
-            "method": "get_dict",
-            "id": 14
-        })
+        response5 = jrpc_client.post(
+            "/rpc", json={"jsonrpc": "2.0", "method": "get_dict", "id": 14}
+        )
         assert response5.json()["result"] == {"key": "value", "number": 123}

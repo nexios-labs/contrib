@@ -1,6 +1,7 @@
 """
 Tests for the scheduler models module.
 """
+
 import time
 
 import pytest
