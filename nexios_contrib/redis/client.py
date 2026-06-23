@@ -7,8 +7,7 @@ from __future__ import annotations
 import asyncio
 import json
 from typing import Any
-
-
+import redis
 from nexios_contrib.redis.config import RedisConfig
 
 # Check for async redis availability at module load time
@@ -112,7 +111,7 @@ class RedisClient(async_redis.Redis):
             else:
                 # Fallback to JSON serialization and regular set
                 json_value = json.dumps(value)
-                return await self.set(key, json_value, nx=nx, xx=xx)  # ty:ignore[invalid-return-type]
+                return await self.set(key, json_value, nx=nx, xx=xx)
         except Exception as e:
             raise RedisOperationError(f"Failed to set JSON for key '{key}': {e}")
 
