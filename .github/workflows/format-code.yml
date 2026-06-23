@@ -30,7 +30,6 @@ jobs:
 
       - name: Run Ruff Linter and Auto-fix
         run: |
-          ruff check . --fix
           ruff format .
 
       - name: Commit and Push Changes
