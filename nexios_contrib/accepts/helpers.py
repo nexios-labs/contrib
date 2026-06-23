@@ -45,7 +45,9 @@ class AcceptsInfo:
         if self._state_accept is None:
             if hasattr(self.request.state, "accepts_parsed"):
                 item = getattr(self.request.state, "accepts_parsed", {})
-                self._state_accept: Any | list[Unknown] = item.get("accept", []) if item else []
+                self._state_accept: Any | list[Unknown] = (
+                    item.get("accept", []) if item else []
+                )
             else:
                 self._state_accept = parse_accept_header(
                     self.request.headers.get("Accept", "")

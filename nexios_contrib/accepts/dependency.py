@@ -60,4 +60,3 @@ def AcceptsDepend(attribute_name: str = "accepts") -> AcceptsInfo:
         return get_accepts_info_from_request(request, attribute_name)
 
     return cast(AcceptsInfo, Depend(_wrap))
-

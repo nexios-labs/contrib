@@ -76,7 +76,7 @@ class SchedulerDepend:
 
 def _get_scheduler_depend(ctx: Context = Context()) -> SchedulerDepend:
     """Factory used by the ``SchedulerDepends`` callable."""
-    
+
     return SchedulerDepend(ctx.request)  # ty:ignore[invalid-argument-type]
 
 

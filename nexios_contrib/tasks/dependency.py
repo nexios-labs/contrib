@@ -13,7 +13,8 @@ from typing import (
     Callable,
     Generic,
     Optional,
-    TypeVar, cast,
+    TypeVar,
+    cast,
 )
 
 from nexios.dependencies import Context, Depend
@@ -113,10 +114,10 @@ def get_task_dependency(
 
     This is the recommended way to get a TaskDepend instance in route handlers.
     """
-    if  not isinstance(ctx.request, Request):
+    if not isinstance(ctx.request, Request):
         raise TypeError("Task dependency requires a Request object")
     return TaskDepend(ctx.request)
 
 
 def TaskDependency() -> TaskDepend:
-    return cast(TaskDepend,Depend(get_task_dependency))
+    return cast(TaskDepend, Depend(get_task_dependency))

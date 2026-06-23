@@ -71,8 +71,9 @@ class MailConfig:
         default_factory=lambda: os.getenv("MAIL_DEBUG", "false").lower() == "true"
     )
     suppress_send: bool = field(
-        default_factory=lambda: os.getenv("MAIL_SUPPRESS_SEND", "false").lower()
-        == "true"
+        default_factory=lambda: (
+            os.getenv("MAIL_SUPPRESS_SEND", "false").lower() == "true"
+        )
     )
 
     def __post_init__(self) -> None:

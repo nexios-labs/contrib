@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field,  field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class TortoiseConfig(BaseModel):
@@ -107,7 +107,7 @@ class TortoiseConfig(BaseModel):
 
             if env_value is not None:
                 # Type conversion for specific fields
-                if isinstance(field,(int, float)):
+                if isinstance(field, (int, float)):
                     try:
                         if field.type_ is int:
                             env_vars[field_name] = int(env_value)

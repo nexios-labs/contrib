@@ -43,4 +43,4 @@ def RedisDepend() -> RedisClient:
         ```
     """
 
-    return cast(RedisClient,Depend(get_redis))
+    return cast(RedisClient, Depend(get_redis))

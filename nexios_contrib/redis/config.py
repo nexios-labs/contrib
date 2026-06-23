@@ -84,15 +84,15 @@ class RedisConfig(BaseModel):
 
             if env_value is not None:
                 # Type conversion for specific fields
-                if field.type_ in (int, float): #ty: ignore
+                if field.type_ in (int, float):  # ty: ignore
                     try:
-                        if isinstance(field,int):
+                        if isinstance(field, int):
                             env_vars[field_name] = int(env_value)
                         else:
                             env_vars[field_name] = float(env_value)
                     except ValueError:
                         continue  # Skip invalid values
-                elif isinstance(field,bool):
+                elif isinstance(field, bool):
                     env_vars[field_name] = env_value.lower() in (
                         "true",
                         "1",

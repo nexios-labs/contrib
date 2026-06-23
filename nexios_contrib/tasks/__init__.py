@@ -198,5 +198,9 @@ def create_task(
 
     task_manager = get_task_manager(request)
     return task_manager.create_task(
-        func=func, *task_args, name=name, timeout=timeout, **kwargs  # ty:ignore[parameter-already-assigned]
+        func=func,
+        *task_args,
+        name=name,
+        timeout=timeout,
+        **kwargs,  # ty:ignore[parameter-already-assigned]
     )  # ty:ignore[invalid-return-type]
